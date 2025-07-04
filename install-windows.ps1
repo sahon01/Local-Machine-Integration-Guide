@@ -1,50 +1,55 @@
-# AI Management Dashboard - Windows PowerShell Installation Script
+# AI Management Dashboard - PowerShell Setup Script
 
-Write-Host "================================================" -ForegroundColor Cyan
-Write-Host "AI Management Dashboard - Windows Installation" -ForegroundColor Cyan
-Write-Host "================================================" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "AI Management Dashboard - Windows Setup" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
+
+# Function to check if a command exists
+function Test-Command($cmdname) {
+    return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
+}
 
 # Check if Node.js is installed
-try {
-    $nodeVersion = node --version
-    Write-Host "[INFO] Node.js found: $nodeVersion" -ForegroundColor Green
-} catch {
-    Write-Host "[ERROR] Node.js is not installed!" -ForegroundColor Red
+if (-not (Test-Command "node")) {
+    Write-Host "ERROR: Node.js is not installed or not in PATH" -ForegroundColor Red
     Write-Host "Please install Node.js from https://nodejs.org/" -ForegroundColor Yellow
-    Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1
 }
 
-# Check if we're in the right directory
-if (-not (Test-Path "package.json")) {
-    Write-Host "[ERROR] package.json not found!" -ForegroundColor Red
-    Write-Host "Please run this script from the project root directory." -ForegroundColor Yellow
-    Write-Host ""
+$nodeVersion = node --version
+Write-Host "Node.js found: $nodeVersion" -ForegroundColor Green
+
+# Check if npm is available
+if (-not (Test-Command "npm")) {
+    Write-Host "ERROR: npm is not available" -ForegroundColor Red
     Read-Host "Press Enter to exit"
     exit 1
 }
 
-Write-Host "[INFO] Installing dependencies..." -ForegroundColor Blue
+$npmVersion = npm --version
+Write-Host "npm found: $npmVersion" -ForegroundColor Green
 Write-Host ""
 
-# Install npm dependencies
+# Install dependencies
+Write-Host "Installing dependencies..." -ForegroundColor Yellow
 try {
     npm install
-    Write-Host ""
-    Write-Host "[SUCCESS] Dependencies installed successfully!" -ForegroundColor Green
-    Write-Host ""
+    if ($LASTEXITCODE -ne 0) {
+        throw "npm install failed"
+    }
+    Write-Host "Dependencies installed successfully!" -ForegroundColor Green
 } catch {
-    Write-Host "[ERROR] Failed to install dependencies!" -ForegroundColor Red
-    Write-Host ""
+    Write-Host "ERROR: Failed to install dependencies" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
     Read-Host "Press Enter to exit"
     exit 1
 }
 
-# Check if .env.local exists, if not create it
+# Create environment file if it doesn't exist
 if (-not (Test-Path ".env.local")) {
-    Write-Host "[INFO] Creating .env.local file..." -ForegroundColor Blue
+    Write-Host "Creating environment configuration..." -ForegroundColor Yellow
     
     $envContent = @"
 # AI Management Dashboard Environment Variables
@@ -58,32 +63,51 @@ ELEVENLABS_API_KEY=your_api_key_here
 "@
     
     $envContent | Out-File -FilePath ".env.local" -Encoding UTF8
-    
-    Write-Host "[INFO] .env.local created with default values." -ForegroundColor Green
-    Write-Host "Please update the values as needed." -ForegroundColor Yellow
-    Write-Host ""
+    Write-Host "Environment file created: .env.local" -ForegroundColor Green
+} else {
+    Write-Host "Environment file already exists: .env.local" -ForegroundColor Yellow
 }
 
-# Try to build the project
-Write-Host "[INFO] Building the project..." -ForegroundColor Blue
+# Build the project
+Write-Host ""
+Write-Host "Building the project..." -ForegroundColor Yellow
 try {
     npm run build
-    Write-Host "[SUCCESS] Project built successfully!" -ForegroundColor Green
+    if ($LASTEXITCODE -ne 0) {
+        throw "Build failed"
+    }
+    Write-Host "Project built successfully!" -ForegroundColor Green
 } catch {
-    Write-Host "[WARNING] Build failed, but you can still run in development mode." -ForegroundColor Yellow
+    Write-Host "ERROR: Build failed" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
 }
 
+# Success message
 Write-Host ""
-Write-Host "[INFO] Starting development server..." -ForegroundColor Blue
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Installation completed successfully!" -ForegroundColor Green
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "================================================" -ForegroundColor Cyan
-Write-Host "Your AI Management Dashboard will be available at:" -ForegroundColor Cyan
-Write-Host "http://localhost:3000" -ForegroundColor White
-Write-Host "http://localhost:3000/admin (Admin Panel)" -ForegroundColor White
-Write-Host "================================================" -ForegroundColor Cyan
+Write-Host "To start the development server:" -ForegroundColor Yellow
+Write-Host "  npm run dev" -ForegroundColor White
 Write-Host ""
-Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Yellow
+Write-Host "To start the production server:" -ForegroundColor Yellow
+Write-Host "  npm run start" -ForegroundColor White
+Write-Host ""
+Write-Host "The dashboard will be available at:" -ForegroundColor Yellow
+Write-Host "  http://localhost:3000" -ForegroundColor White
+Write-Host ""
+Write-Host "Admin panel will be available at:" -ForegroundColor Yellow
+Write-Host "  http://localhost:3000/admin" -ForegroundColor White
 Write-Host ""
 
-# Start the development server
-npm run dev
+# Ask if user wants to start the development server
+$startDev = Read-Host "Would you like to start the development server now? (y/N)"
+if ($startDev -eq "y" -or $startDev -eq "Y") {
+    Write-Host "Starting development server..." -ForegroundColor Green
+    npm run dev
+} else {
+    Write-Host "Setup complete. Run 'npm run dev' when ready to start." -ForegroundColor Green
+}

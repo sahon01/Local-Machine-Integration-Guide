@@ -1,84 +1,90 @@
 @echo off
-echo ================================================
-echo AI Management Dashboard - Windows Installation
-echo ================================================
+echo ========================================
+echo AI Management Dashboard - Windows Setup
+echo ========================================
 echo.
 
-REM Check if Node.js is installed
+:: Check if Node.js is installed
 node --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] Node.js is not installed!
+    echo ERROR: Node.js is not installed or not in PATH
     echo Please install Node.js from https://nodejs.org/
-    echo.
-    pause
+    echo Press any key to exit...
+    pause >nul
     exit /b 1
 )
 
-echo [INFO] Node.js found...
+echo Node.js found: 
 node --version
 
-REM Check if we're in the right directory
-if not exist "package.json" (
-    echo [ERROR] package.json not found!
-    echo Please run this script from the project root directory.
-    echo.
-    pause
-    exit /b 1
-)
-
-echo [INFO] Installing dependencies...
-echo.
-
-REM Install npm dependencies
-npm install
+:: Check if npm is available
+npm --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] Failed to install dependencies!
-    echo.
-    pause
+    echo ERROR: npm is not available
+    echo Press any key to exit...
+    pause >nul
     exit /b 1
 )
 
-echo.
-echo [SUCCESS] Dependencies installed successfully!
+echo npm found:
+npm --version
 echo.
 
-REM Check if .env.local exists, if not create it
+:: Install dependencies
+echo Installing dependencies...
+call npm install
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to install dependencies
+    echo Press any key to exit...
+    pause >nul
+    exit /b 1
+)
+
+:: Create environment file if it doesn't exist
 if not exist ".env.local" (
-    echo [INFO] Creating .env.local file...
-    echo # AI Management Dashboard Environment Variables > .env.local
-    echo NEXT_PUBLIC_API_URL=http://localhost:3307 >> .env.local
-    echo DATABASE_HOST=127.0.0.1 >> .env.local
-    echo DATABASE_PORT=3307 >> .env.local
-    echo DATABASE_USER=root >> .env.local
-    echo DATABASE_PASSWORD=105585 >> .env.local
-    echo DATABASE_NAME=modelsraver1 >> .env.local
-    echo ELEVENLABS_API_KEY=your_api_key_here >> .env.local
-    echo.
-    echo [INFO] .env.local created with default values.
-    echo Please update the values as needed.
-    echo.
+    echo Creating environment configuration...
+    (
+        echo # AI Management Dashboard Environment Variables
+        echo NEXT_PUBLIC_API_URL=http://localhost:3307
+        echo DATABASE_HOST=127.0.0.1
+        echo DATABASE_PORT=3307
+        echo DATABASE_USER=root
+        echo DATABASE_PASSWORD=105585
+        echo DATABASE_NAME=modelsraver1
+        echo ELEVENLABS_API_KEY=your_api_key_here
+    ) > .env.local
+    echo Environment file created: .env.local
+) else (
+    echo Environment file already exists: .env.local
 )
 
-REM Try to build the project
-echo [INFO] Building the project...
-npm run build
+:: Build the project
+echo.
+echo Building the project...
+call npm run build
 if %errorlevel% neq 0 (
-    echo [WARNING] Build failed, but you can still run in development mode.
-    echo.
+    echo ERROR: Build failed
+    echo Press any key to exit...
+    pause >nul
+    exit /b 1
 )
 
-echo [INFO] Starting development server...
 echo.
-echo ================================================
-echo Your AI Management Dashboard will be available at:
-echo http://localhost:3000
-echo http://localhost:3000/admin (Admin Panel)
-echo ================================================
+echo ========================================
+echo Installation completed successfully!
+echo ========================================
 echo.
-echo Press Ctrl+C to stop the server
+echo To start the development server:
+echo   npm run dev
 echo.
-
-REM Start the development server
-npm run dev
-
-pause
+echo To start the production server:
+echo   npm run start
+echo.
+echo The dashboard will be available at:
+echo   http://localhost:3000
+echo.
+echo Admin panel will be available at:
+echo   http://localhost:3000/admin
+echo.
+echo Press any key to exit...
+pause >nul

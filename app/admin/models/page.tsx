@@ -1,229 +1,335 @@
-"use client"
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Brain, Cpu, MemoryStick, Play, Settings, TrendingUp } from "lucide-react"
-import { useLanguage } from "@/lib/language-context"
+import { Brain, Play, Pause, Settings, Download, Search, Plus, Activity } from "lucide-react"
 import Link from "next/link"
 
-const models = [
-  {
-    id: "mistral",
-    name: "Mistral",
-    version: "7B",
-    status: "running",
-    usage: "Code Analysis",
-    requests: 342,
-    avgResponseTime: "0.8s",
-    accuracy: 94,
-    memoryUsage: 2.1,
-    cpuUsage: 45,
-    uptime: "2d 14h",
-    description: "Advanced language model optimized for code analysis and understanding",
-    capabilities: ["Code Analysis", "Bug Detection", "Code Review", "Documentation"],
-    lastUsed: "2 minutes ago",
-  },
-  {
-    id: "deepseek",
-    name: "DeepSeek",
-    version: "6.7B",
-    status: "running",
-    usage: "Code Generation",
-    requests: 289,
-    avgResponseTime: "1.2s",
-    accuracy: 91,
-    memoryUsage: 1.8,
-    cpuUsage: 38,
-    uptime: "2d 14h",
-    description: "Specialized model for generating high-quality code across multiple languages",
-    capabilities: ["Code Generation", "Refactoring", "API Integration", "Testing"],
-    lastUsed: "5 minutes ago",
-  },
-  {
-    id: "phi",
-    name: "Phi",
-    version: "3.8B",
-    status: "running",
-    usage: "General Purpose",
-    requests: 156,
-    avgResponseTime: "0.6s",
-    accuracy: 89,
-    memoryUsage: 1.2,
-    cpuUsage: 28,
-    uptime: "2d 14h",
-    description: "Lightweight model for general-purpose tasks and quick responses",
-    capabilities: ["General Chat", "Quick Tasks", "Simple Queries", "Explanations"],
-    lastUsed: "1 minute ago",
-  },
-  {
-    id: "gemma",
-    name: "Gemma",
-    version: "7B",
-    status: "running",
-    usage: "Documentation",
-    requests: 198,
-    avgResponseTime: "1.0s",
-    accuracy: 96,
-    memoryUsage: 2.0,
-    cpuUsage: 35,
-    uptime: "2d 14h",
-    description: "Optimized for creating comprehensive documentation and technical writing",
-    capabilities: ["Documentation", "Technical Writing", "Tutorials", "API Docs"],
-    lastUsed: "8 minutes ago",
-  },
-  {
-    id: "tinyllama",
-    name: "TinyLlama",
-    version: "1.1B",
-    status: "running",
-    usage: "Quick Tasks",
-    requests: 445,
-    avgResponseTime: "0.3s",
-    accuracy: 85,
-    memoryUsage: 0.6,
-    cpuUsage: 15,
-    uptime: "2d 14h",
-    description: "Ultra-fast model for simple tasks and rapid responses",
-    capabilities: ["Quick Responses", "Simple Tasks", "Basic Chat", "Fast Processing"],
-    lastUsed: "30 seconds ago",
-  },
-]
-
 export default function AdminModelsPage() {
-  const { t } = useLanguage()
+  const models = [
+    {
+      id: "mistral",
+      name: "Mistral",
+      version: "7B",
+      status: "running",
+      description: "Advanced language model optimized for code analysis",
+      requests: 342,
+      avgResponse: 0.8,
+      accuracy: 94,
+      memoryUsage: 2.1,
+      lastUsed: "2 minutes ago",
+    },
+    {
+      id: "deepseek",
+      name: "DeepSeek",
+      version: "6.7B",
+      status: "running",
+      description: "Specialized model for code generation and programming tasks",
+      requests: 189,
+      avgResponse: 1.2,
+      accuracy: 91,
+      memoryUsage: 1.8,
+      lastUsed: "5 minutes ago",
+    },
+    {
+      id: "phi",
+      name: "Phi",
+      version: "3.8B",
+      status: "stopped",
+      description: "General purpose language model for various tasks",
+      requests: 67,
+      avgResponse: 0.6,
+      accuracy: 88,
+      memoryUsage: 0,
+      lastUsed: "1 hour ago",
+    },
+    {
+      id: "gemma",
+      name: "Gemma",
+      version: "2B",
+      status: "running",
+      description: "Lightweight model optimized for documentation and explanations",
+      requests: 156,
+      avgResponse: 0.4,
+      accuracy: 92,
+      memoryUsage: 0.9,
+      lastUsed: "1 minute ago",
+    },
+    {
+      id: "tinyllama",
+      name: "TinyLlama",
+      version: "1.1B",
+      status: "running",
+      description: "Ultra-fast model for quick tasks and simple queries",
+      requests: 423,
+      avgResponse: 0.2,
+      accuracy: 85,
+      memoryUsage: 0.5,
+      lastUsed: "30 seconds ago",
+    },
+  ]
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "running":
+        return "bg-green-100 text-green-800 border-green-200"
+      case "stopped":
+        return "bg-red-100 text-red-800 border-red-200"
+      case "loading":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200"
+    }
+  }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">{t("modelsTitle")}</h1>
-          <p className="text-slate-600">{t("modelsDesc")}</p>
+          <h1 className="text-3xl font-bold text-slate-900">Model Management</h1>
+          <p className="text-slate-600">Monitor and control your local AI models</p>
         </div>
-        <Button>
-          <Settings className="h-4 w-4 mr-2" />
-          {t("modelSettings")}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Install Model
+          </Button>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Model
+          </Button>
+        </div>
       </div>
 
-      {/* Models Grid */}
-      <div className="grid gap-6">
-        {models.map((model) => (
-          <Card key={model.id} className="overflow-hidden">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="bg-blue-100 text-blue-800 rounded-full w-10 h-10 flex items-center justify-center">
-                    <Brain className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      {model.name}
-                      <Badge variant="secondary">{model.version}</Badge>
-                      <Badge variant={model.status === "running" ? "default" : "destructive"}>{model.status}</Badge>
-                    </CardTitle>
-                    <CardDescription>{model.description}</CardDescription>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Link href={`/admin/models/${model.id}`}>
-                    <Button variant="outline" size="sm">
-                      {t("viewDetails")}
-                    </Button>
-                  </Link>
-                  <Button size="sm">
-                    <Play className="h-4 w-4 mr-2" />
-                    {t("testModel")}
-                  </Button>
-                </div>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Total Models</p>
+                <p className="text-2xl font-bold">5</p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="performance">Performance</TabsTrigger>
-                  <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
-                  <TabsTrigger value="usage">Usage</TabsTrigger>
-                </TabsList>
+              <Brain className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
 
-                <TabsContent value="overview" className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-3 bg-slate-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{model.requests}</div>
-                      <div className="text-sm text-slate-600">Total Requests</div>
-                    </div>
-                    <div className="text-center p-3 bg-slate-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">{model.avgResponseTime}</div>
-                      <div className="text-sm text-slate-600">Avg Response</div>
-                    </div>
-                    <div className="text-center p-3 bg-slate-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">{model.accuracy}%</div>
-                      <div className="text-sm text-slate-600">Accuracy</div>
-                    </div>
-                    <div className="text-center p-3 bg-slate-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600">{model.uptime}</div>
-                      <div className="text-sm text-slate-600">Uptime</div>
-                    </div>
-                  </div>
-                </TabsContent>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Running</p>
+                <p className="text-2xl font-bold text-green-600">4</p>
+              </div>
+              <Play className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
 
-                <TabsContent value="performance" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MemoryStick className="h-4 w-4" />
-                          <span className="text-sm font-medium">Memory Usage</span>
-                        </div>
-                        <span className="text-sm text-slate-600">{model.memoryUsage}GB</span>
-                      </div>
-                      <Progress value={(model.memoryUsage / 4) * 100} className="h-2" />
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Cpu className="h-4 w-4" />
-                          <span className="text-sm font-medium">CPU Usage</span>
-                        </div>
-                        <span className="text-sm text-slate-600">{model.cpuUsage}%</span>
-                      </div>
-                      <Progress value={model.cpuUsage} className="h-2" />
-                    </div>
-                  </div>
-                </TabsContent>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Total Requests</p>
+                <p className="text-2xl font-bold">1,177</p>
+              </div>
+              <Activity className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
 
-                <TabsContent value="capabilities" className="space-y-4">
-                  <div className="flex flex-wrap gap-2">
-                    {model.capabilities.map((capability) => (
-                      <Badge key={capability} variant="outline">
-                        {capability}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="text-sm text-slate-600">
-                    <strong>Primary Use Case:</strong> {model.usage}
-                  </div>
-                  <div className="text-sm text-slate-600">
-                    <strong>Last Used:</strong> {model.lastUsed}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="usage" className="space-y-4">
-                  <div className="h-32 bg-slate-50 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-slate-500">
-                      <TrendingUp className="h-8 w-8 mx-auto mb-2" />
-                      <div className="text-sm">Usage chart would be displayed here</div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        ))}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Memory Usage</p>
+                <p className="text-2xl font-bold">5.3GB</p>
+              </div>
+              <div className="w-8 h-8 bg-orange-100 text-orange-800 rounded-full flex items-center justify-center">
+                <span className="text-sm font-bold">M</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Models List */}
+      <Tabs defaultValue="all" className="space-y-6">
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="all">All Models</TabsTrigger>
+            <TabsTrigger value="running">Running</TabsTrigger>
+            <TabsTrigger value="stopped">Stopped</TabsTrigger>
+          </TabsList>
+          <div className="flex gap-2">
+            <Input placeholder="Search models..." className="w-64" />
+            <Button variant="outline" size="sm">
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <TabsContent value="all">
+          <div className="space-y-4">
+            {models.map((model) => (
+              <Card key={model.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-blue-100 text-blue-800 rounded-full w-12 h-12 flex items-center justify-center">
+                        <Brain className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="text-lg font-semibold">{model.name}</h3>
+                          <Badge variant="outline">{model.version}</Badge>
+                          <Badge variant="outline" className={getStatusColor(model.status)}>
+                            {model.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-slate-600 mb-2">{model.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                          <span>{model.requests} requests</span>
+                          <span>{model.avgResponse}s avg response</span>
+                          <span>{model.accuracy}% accuracy</span>
+                          <span>{model.memoryUsage}GB memory</span>
+                          <span>Last used: {model.lastUsed}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/models/${model.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
+                      <Button variant="outline" size="sm">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                      <Button variant={model.status === "running" ? "destructive" : "default"} size="sm">
+                        {model.status === "running" ? (
+                          <>
+                            <Pause className="h-4 w-4 mr-2" />
+                            Stop
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 mr-2" />
+                            Start
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="running">
+          <div className="space-y-4">
+            {models
+              .filter((model) => model.status === "running")
+              .map((model) => (
+                <Card key={model.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-green-100 text-green-800 rounded-full w-12 h-12 flex items-center justify-center">
+                          <Brain className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="text-lg font-semibold">{model.name}</h3>
+                            <Badge variant="outline">{model.version}</Badge>
+                            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                              {model.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-2">{model.description}</p>
+                          <div className="flex items-center gap-4 text-xs text-slate-500">
+                            <span>{model.requests} requests</span>
+                            <span>{model.avgResponse}s avg response</span>
+                            <span>{model.accuracy}% accuracy</span>
+                            <span>{model.memoryUsage}GB memory</span>
+                            <span>Last used: {model.lastUsed}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/models/${model.id}`}>
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button variant="destructive" size="sm">
+                          <Pause className="h-4 w-4 mr-2" />
+                          Stop
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="stopped">
+          <div className="space-y-4">
+            {models
+              .filter((model) => model.status === "stopped")
+              .map((model) => (
+                <Card key={model.id} className="hover:shadow-md transition-shadow opacity-75">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-red-100 text-red-800 rounded-full w-12 h-12 flex items-center justify-center">
+                          <Brain className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="text-lg font-semibold">{model.name}</h3>
+                            <Badge variant="outline">{model.version}</Badge>
+                            <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                              {model.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-2">{model.description}</p>
+                          <div className="flex items-center gap-4 text-xs text-slate-500">
+                            <span>{model.requests} requests</span>
+                            <span>{model.avgResponse}s avg response</span>
+                            <span>{model.accuracy}% accuracy</span>
+                            <span>Last used: {model.lastUsed}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/models/${model.id}`}>
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button variant="default" size="sm">
+                          <Play className="h-4 w-4 mr-2" />
+                          Start
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

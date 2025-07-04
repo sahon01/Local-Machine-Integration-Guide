@@ -187,16 +187,3 @@ install-windows.ps1  # PowerShell script installation
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-\`\`\`
-
-This comprehensive update includes:
-
-1. **Multi-language support** (English and Bengali) with a complete translation system
-2. **Admin sidebar navigation** replacing the top header bar for better organization
-3. **Optimized layouts** for both public and admin interfaces
-4. **Windows installation scripts** (both batch and PowerShell) for automatic setup
-5. **Complete admin panel** with all the requested features
-6. **Responsive design** that works across all devices
-7. **Translation support** for all interface elements
-
-The system now provides a professional admin interface with sidebar navigation, multi-language support, and easy Windows installation through automated scripts.

@@ -1,116 +1,117 @@
-export const languages = {
-  en: {
-    name: "English",
-    code: "en",
-  },
-  bn: {
-    name: "বাংলা",
-    code: "bn",
-  },
-}
-
 export const translations = {
   en: {
     // Navigation
     dashboard: "Dashboard",
-    models: "AI Models",
-    aiTools: "AI Tools",
-    serverMgmt: "Server Management",
+    models: "Models",
     database: "Database",
-    commands: "Commands",
-    devTools: "Dev Tools",
+    server: "Server",
+    analytics: "Analytics",
     webhooks: "Webhooks",
-    documentation: "Documentation",
+    users: "Users",
     settings: "Settings",
 
-    // Dashboard
-    dashboardTitle: "AI Management Dashboard",
-    dashboardDesc: "Monitor and manage your local AI models and integrations",
-    activeModels: "Active Models",
-    totalRequests: "Total Requests",
-    avgResponseTime: "Avg Response Time",
-    connectedEditors: "Connected Editors",
+    // Admin Panel
+    adminPanel: "Admin Panel",
+    aiManagement: "AI Management",
+    administration: "Administration",
+    publicAccess: "Public Access",
+    publicDashboard: "Public Dashboard",
+    aiChat: "AI Chat",
+    documentation: "Documentation",
+    setupGuide: "Setup Guide",
+    troubleshooting: "Troubleshooting",
 
-    // Models
-    modelsTitle: "AI Models",
-    modelsDesc: "Manage and monitor your local AI models",
-    modelSettings: "Model Settings",
-    viewDetails: "View Details",
-    testModel: "Test Model",
-
-    // Installation
-    installTitle: "Installation Guide",
-    installDesc: "Complete installation and setup instructions for your AI models",
-    systemReq: "System Requirements",
-    minRam: "Minimum RAM",
-    freeDisk: "Free Disk Space",
-    gpuSupport: "GPU Support (Optional)",
+    // System Status
+    language: "Language",
+    systemStatus: "System Status",
+    allSystemsOperational: "All systems operational",
 
     // Common
-    search: "Search",
-    add: "Add",
-    edit: "Edit",
-    delete: "Delete",
-    save: "Save",
-    cancel: "Cancel",
-    refresh: "Refresh",
     loading: "Loading...",
-    success: "Success",
     error: "Error",
-    warning: "Warning",
-    info: "Information",
+    success: "Success",
+    cancel: "Cancel",
+    save: "Save",
+    delete: "Delete",
+    edit: "Edit",
+    view: "View",
+    add: "Add",
+    remove: "Remove",
+
+    // Models
+    activeModels: "Active Models",
+    totalRequests: "Total Requests",
+    averageResponse: "Average Response",
+    modelPerformance: "Model Performance",
+
+    // Database
+    databaseConnections: "Database Connections",
+    queryPerformance: "Query Performance",
+    backupStatus: "Backup Status",
+
+    // Server
+    serverUptime: "Server Uptime",
+    cpuUsage: "CPU Usage",
+    memoryUsage: "Memory Usage",
+    diskSpace: "Disk Space",
   },
   bn: {
     // Navigation
     dashboard: "ড্যাশবোর্ড",
-    models: "এআই মডেল",
-    aiTools: "এআই টুলস",
-    serverMgmt: "সার্ভার ব্যবস্থাপনা",
+    models: "মডেল",
     database: "ডেটাবেস",
-    commands: "কমান্ড",
-    devTools: "ডেভ টুলস",
+    server: "সার্ভার",
+    analytics: "বিশ্লেষণ",
     webhooks: "ওয়েবহুক",
-    documentation: "ডকুমেন্টেশন",
+    users: "ব্যবহারকারী",
     settings: "সেটিংস",
 
-    // Dashboard
-    dashboardTitle: "এআই ব্যবস্থাপনা ড্যাশবোর্ড",
-    dashboardDesc: "আপনার স্থানীয় এআই মডেল এবং ইন্টিগ্রেশন পর্যবেক্ষণ এবং পরিচালনা করুন",
-    activeModels: "সক্রিয় মডেল",
-    totalRequests: "মোট অনুরোধ",
-    avgResponseTime: "গড় প্রতিক্রিয়ার সময়",
-    connectedEditors: "সংযুক্ত এডিটর",
+    // Admin Panel
+    adminPanel: "অ্যাডমিন প্যানেল",
+    aiManagement: "এআই ব্যবস্থাপনা",
+    administration: "প্রশাসন",
+    publicAccess: "পাবলিক অ্যাক্সেস",
+    publicDashboard: "পাবলিক ড্যাশবোর্ড",
+    aiChat: "এআই চ্যাট",
+    documentation: "ডকুমেন্টেশন",
+    setupGuide: "সেটআপ গাইড",
+    troubleshooting: "সমস্যা সমাধান",
 
-    // Models
-    modelsTitle: "এআই মডেল",
-    modelsDesc: "আপনার স্থানীয় এআই মডেল পরিচালনা এবং পর্যবেক্ষণ করুন",
-    modelSettings: "মডেল সেটিংস",
-    viewDetails: "বিস্তারিত দেখুন",
-    testModel: "মডেল পরীক্ষা করুন",
-
-    // Installation
-    installTitle: "ইনস্টলেশন গাইড",
-    installDesc: "আপনার এআই মডেলের সম্পূর্ণ ইনস্টলেশন এবং সেটআপ নির্দেশাবলী",
-    systemReq: "সিস্টেম প্রয়োজনীয়তা",
-    minRam: "ন্যূনতম র‍্যাম",
-    freeDisk: "ফ্রি ডিস্ক স্পেস",
-    gpuSupport: "জিপিইউ সাপোর্ট (ঐচ্ছিক)",
+    // System Status
+    language: "ভাষা",
+    systemStatus: "সিস্টেম স্ট্যাটাস",
+    allSystemsOperational: "সব সিস্টেম চালু",
 
     // Common
-    search: "খুঁজুন",
-    add: "যোগ করুন",
-    edit: "সম্পাদনা",
-    delete: "মুছুন",
-    save: "সংরক্ষণ",
-    cancel: "বাতিল",
-    refresh: "রিফ্রেশ",
     loading: "লোড হচ্ছে...",
-    success: "সফল",
     error: "ত্রুটি",
-    warning: "সতর্কতা",
-    info: "তথ্য",
+    success: "সফল",
+    cancel: "বাতিল",
+    save: "সংরক্ষণ",
+    delete: "মুছুন",
+    edit: "সম্পাদনা",
+    view: "দেখুন",
+    add: "যোগ করুন",
+    remove: "সরান",
+
+    // Models
+    activeModels: "সক্রিয় মডেল",
+    totalRequests: "মোট অনুরোধ",
+    averageResponse: "গড় প্রতিক্রিয়া",
+    modelPerformance: "মডেল পারফরম্যান্স",
+
+    // Database
+    databaseConnections: "ডেটাবেস সংযোগ",
+    queryPerformance: "কোয়েরি পারফরম্যান্স",
+    backupStatus: "ব্যাকআপ স্ট্যাটাস",
+
+    // Server
+    serverUptime: "সার্ভার আপটাইম",
+    cpuUsage: "সিপিইউ ব্যবহার",
+    memoryUsage: "মেমরি ব্যবহার",
+    diskSpace: "ডিস্ক স্পেস",
   },
 }
 
-export type Language = keyof typeof languages
+export type Language = keyof typeof translations
 export type TranslationKey = keyof typeof translations.en

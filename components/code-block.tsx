@@ -30,7 +30,7 @@ export function CodeBlock({ language, code }: CodeBlockProps) {
           variant="ghost"
           size="sm"
           onClick={copyToClipboard}
-          className="h-8 w-8 p-0 text-slate-200 hover:text-white hover:bg-slate-700"
+          className="h-8 w-8 p-0 text-slate-400 hover:text-slate-200"
         >
           {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
         </Button>
