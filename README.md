@@ -1,40 +1,52 @@
-# AI Management Dashboard
+# AI Management Dashboard - Enhanced Edition
 
-A comprehensive AI model management and development toolkit with multi-language support (English and Bengali).
+A comprehensive AI model management and development toolkit with advanced voice support, custom character creation, project integration, and daily planning features.
 
-## Features
+## 🚀 New Features
 
-- 🤖 **AI Model Management** - Monitor and control local AI models
-- 💬 **Multi-Language Support** - English and Bengali (বাংলা) interface
-- 🎛️ **Admin Panel** - Complete administrative interface with sidebar navigation
-- 🔧 **Server Management** - WHM domains, SSH tools, server access
-- 💾 **Database Tools** - MySQL management, analysis, and backup
-- 🎵 **ElevenLabs Integration** - Voice processing and webhooks
-- 📝 **Command Library** - PHP, Node.js, Python, Linux, and Ollama commands
-- ⚡ **Development Tools** - Git and Docker command interfaces
-- 📊 **Real-time Monitoring** - Performance metrics and system health
+### Voice Integration
+- **Bengali Voice Support** - Full voice input/output in Bengali (বাংলা)
+- **Voice Input Fields** - All input fields support voice commands
+- **Voice Reminders** - Time-based voice notifications
+- **System Voice Reports** - Spoken system status updates
 
-## System Requirements
+### Custom AI Characters
+- **Character Creator** - Design AI personalities for specific projects
+- **Multi-language Characters** - English and Bengali speaking agents
+- **Project-Specific Agents** - Agents that understand project context
+- **Voice-Enabled Characters** - Characters with voice interaction
 
-- **RAM:** 16GB minimum
-- **Disk Space:** 100GB free space
-- **Node.js:** 18+ 
-- **OS:** Windows 10/11, macOS, or Linux
+### Project Management
+- **Project-Agent Integration** - Connect AI agents to specific projects
+- **Code Editor Integration** - VS Code, Cursor, WebStorm support
+- **Real-time Code Analysis** - Live code review and suggestions
+- **Project Monitoring** - Track agent activity across projects
 
-## Quick Installation (Windows)
+### Daily Planning & Scheduling
+- **Daily Planner** - Schedule tasks, meetings, and reminders
+- **Voice Reminders** - Time-based voice notifications
+- **Task Management** - Voice-enabled task tracking
+- **Meeting Scheduler** - Integrated calendar with voice alerts
 
-### Option 1: Batch Script
-1. Download or clone this repository
-2. Double-click `install-windows.bat`
-3. Follow the on-screen instructions
+### System Monitoring
+- **Real-time RAM Usage** - Live memory monitoring
+- **Performance Optimization** - Prevent system overload
+- **Voice Status Reports** - Spoken system health updates
+- **Resource Alerts** - Voice warnings for high usage
 
-### Option 2: PowerShell Script
-1. Open PowerShell as Administrator
-2. Run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-3. Navigate to project directory
-4. Run: `.\install-windows.ps1`
+## 🛠️ Installation
 
-### Option 3: Manual Installation
+### Quick Start (Windows)
+\`\`\`bash
+# Clone the repository
+git clone <repository-url>
+cd ai-management-dashboard
+
+# Run the installation script
+.\install-windows.bat
+\`\`\`
+
+### Manual Installation
 \`\`\`bash
 # Install dependencies
 npm install
@@ -42,17 +54,13 @@ npm install
 # Create environment file
 cp .env.example .env.local
 
-# Build the project
-npm run build
-
 # Start development server
 npm run dev
 \`\`\`
 
-## Environment Configuration
+## 🔧 Configuration
 
-Create a `.env.local` file with these variables:
-
+### Environment Variables
 \`\`\`env
 # AI Management Dashboard Environment Variables
 NEXT_PUBLIC_API_URL=http://localhost:3307
@@ -64,139 +72,219 @@ DATABASE_NAME=modelsraver1
 ELEVENLABS_API_KEY=your_api_key_here
 \`\`\`
 
-## Usage
+### Voice Configuration
+The system automatically detects available voices for English and Bengali. For optimal Bengali voice support, ensure your system has Bengali TTS voices installed.
 
-### Public Interface
-- **Main Dashboard:** http://localhost:3000
-- **Documentation:** http://localhost:3000/documentation
-- **Setup Guide:** http://localhost:3000/setup
+## 📱 Usage
+
+### Main Dashboard
+- **URL:** http://localhost:3000
+- **Features:** System overview, quick actions, performance monitoring
 
 ### Admin Panel
-- **Admin Dashboard:** http://localhost:3000/admin
-- **Model Management:** http://localhost:3000/admin/models
-- **Database Tools:** http://localhost:3000/admin/database
-- **Server Management:** http://localhost:3000/admin/server
+- **URL:** http://localhost:3000/admin
+- **Features:** Complete administrative interface with sidebar navigation
 
-## Language Support
+### Key Pages
+- **Custom Characters:** `/custom-characters` - Create and manage AI personalities
+- **Daily Planner:** `/daily-planner` - Schedule and voice reminders
+- **Project Manager:** `/projects` - Project-agent integration
+- **System Monitor:** `/system-monitor` - Real-time performance with voice reports
+- **Code Integration:** `/code-integration` - Editor-agent connections
 
-The dashboard supports both English and Bengali:
-
-- **English Interface:** Default language
-- **Bengali Interface:** বাংলা ইন্টারফেস সাপোর্ট
-
-Switch languages using the language selector in the admin sidebar.
-
-## Available Scripts
-
-\`\`\`bash
-# Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run linting
-
-# Windows Installation
-install-windows.bat  # Batch script installation
-install-windows.ps1  # PowerShell script installation
-\`\`\`
-
-## Project Structure
-
-\`\`\`
-├── app/
-│   ├── admin/              # Admin panel pages
-│   ├── (public pages)/     # Public interface pages
-│   └── layout.tsx          # Root layout
-├── components/
-│   ├── ui/                 # shadcn/ui components
-│   ├── admin-sidebar.tsx   # Admin navigation
-│   └── (other components)
-├── lib/
-│   ├── i18n.ts            # Language translations
-│   └── language-context.tsx # Language provider
-├── install-windows.bat     # Windows batch installer
-├── install-windows.ps1     # Windows PowerShell installer
-└── README.md
-\`\`\`
-
-## Features by Section
+## 🎯 Features by Category
 
 ### AI Tools
-- **AI Chat:** Multi-model chat interface
-- **Prompt Generator:** Create optimized prompts
-- **Project Ideas:** AI-generated development suggestions
+- **AI Chat** - Multi-model conversation interface
+- **Custom Characters** - Personalized AI agents
+- **Prompt Generator** - Optimized prompt creation
+- **Project Ideas** - AI-generated development suggestions
 
-### Server Management
-- **WHM Domains:** Domain and SSL management
-- **Server Access:** Remote server controls
-- **SSH Tools:** Secure shell utilities
+### Project Management
+- **Project Manager** - Centralized project overview
+- **Project Agents** - AI agents assigned to specific projects
+- **Code Integration** - Editor-agent connections
+- **Real-time Monitoring** - Live project activity tracking
 
-### Database Management
-- **Database Tools:** MySQL management interface
-- **Database Analysis:** Performance and analytics
-- **Connection Management:** Database connectivity tools
-- **cPanel Integration:** Web hosting panel access
+### Daily Planning
+- **Daily Planner** - Task and schedule management
+- **Voice Reminders** - Time-based voice notifications
+- **Meeting Scheduler** - Calendar integration
+- **Work Schedule** - Daily work planning
 
-### Command Libraries
-- **PHP Commands:** Web development commands
-- **Node.js Commands:** JavaScript runtime commands
-- **Python Commands:** Python development tools
-- **Linux Commands:** System administration
-- **Ollama Commands:** Local AI model management
+### System Management
+- **System Monitor** - Real-time performance tracking
+- **Resource Alerts** - Voice warnings for high usage
+- **Performance Optimization** - Prevent system overload
+- **Voice Reports** - Spoken system status
 
-### Development Tools
-- **Git Commands:** Version control interface
-- **Docker Commands:** Container management
+### Voice Features
+- **Voice Input** - All input fields support voice commands
+- **Bengali Support** - Full Bengali voice interaction
+- **Voice Reminders** - Time-based notifications
+- **Voice Reports** - System status announcements
 
-## Troubleshooting
+## 🔊 Voice Commands
+
+### English Commands
+- "Add task: Review code"
+- "Set reminder for 2 PM"
+- "Check system status"
+- "Analyze this code"
+
+### Bengali Commands (বাংলা)
+- "কাজ যোগ করুন: কোড পর্যালোচনা"
+- "দুপুর ২টায় রিমাইন্ডার সেট করুন"
+- "সিস্টেম স্ট্যাটাস চেক করুন"
+
+## 🤖 AI Character Creation
+
+### Character Types
+- **Developer Mentor** - Code guidance and best practices
+- **Code Reviewer** - Automated code review and suggestions
+- **Project Manager** - Task and timeline management
+- **Data Specialist** - Data analysis and insights
+- **Bengali Expert** - Bengali language support
+
+### Character Configuration
+- **Personality Traits** - Define character behavior
+- **Expertise Areas** - Specify knowledge domains
+- **Voice Settings** - Configure voice characteristics
+- **Project Assignment** - Link to specific projects
+
+## 📊 System Requirements
+
+### Minimum Requirements
+- **RAM:** 16GB (monitored in real-time)
+- **CPU:** Multi-core processor
+- **Disk:** 100GB free space
+- **OS:** Windows 10/11, macOS, or Linux
+
+### Recommended for Voice Features
+- **Microphone:** For voice input
+- **Speakers/Headphones:** For voice output
+- **Bengali TTS:** For Bengali voice support
+
+## 🔧 Troubleshooting
 
 ### Common Issues
 
-1. **Port 3307 already in use:**
+1. **Voice Input Not Working**
    \`\`\`bash
-   netstat -ano | findstr :3307
-   taskkill /PID <PID> /F
+   # Check microphone permissions
+   # Ensure browser has microphone access
    \`\`\`
 
-2. **Node.js not found:**
-   - Install Node.js from https://nodejs.org/
-   - Restart your terminal/command prompt
+2. **Bengali Voice Not Available**
+   \`\`\`bash
+   # Install Bengali TTS voices on your system
+   # Windows: Settings > Time & Language > Speech
+   \`\`\`
 
-3. **Permission errors (Windows):**
-   - Run PowerShell as Administrator
-   - Enable script execution: `Set-ExecutionPolicy RemoteSigned`
+3. **High RAM Usage**
+   \`\`\`bash
+   # Monitor system performance at /system-monitor
+   # Voice alerts will notify of high usage
+   \`\`\`
 
-4. **Database connection failed:**
-   - Check your `.env.local` configuration
-   - Ensure MySQL server is running on port 3307
+4. **Agent Not Responding**
+   \`\`\`bash
+   # Check agent status in project manager
+   # Restart agent from admin panel
+   \`\`\`
 
-## Contributing
+## 🌐 Multi-language Support
+
+### Supported Languages
+- **English** - Full interface and voice support
+- **Bengali (বাংলা)** - Complete localization with voice
+
+### Language Switching
+- Use the language selector in the admin sidebar
+- Voice commands automatically detect language
+- Characters can be configured for specific languages
+
+## 📈 Performance Monitoring
+
+### Real-time Metrics
+- **CPU Usage** - Live monitoring with voice alerts
+- **Memory Usage** - RAM tracking with optimization suggestions
+- **Disk Usage** - Storage monitoring
+- **Network Activity** - Bandwidth tracking
+
+### Voice Alerts
+- High CPU usage warnings
+- Memory optimization suggestions
+- Disk space alerts
+- System performance reports
+
+## 🔗 Integration
+
+### Code Editors
+- **VS Code** - Full integration with extensions
+- **Cursor** - AI-powered development
+- **WebStorm** - JetBrains IDE support
+
+### AI Models
+- **Mistral** - Code analysis and review
+- **DeepSeek** - Code generation
+- **Phi** - General purpose tasks
+- **Gemma** - Documentation generation
+- **TinyLlama** - Quick responses
+
+### Voice Services
+- **ElevenLabs** - Advanced voice synthesis
+- **Browser TTS** - Built-in text-to-speech
+- **Speech Recognition** - Voice input processing
+
+## 📝 Development
+
+### Project Structure
+\`\`\`
+├── app/
+│   ├── admin/              # Admin panel pages
+│   ├── custom-characters/  # Character management
+│   ├── daily-planner/      # Planning and scheduling
+│   ├── projects/           # Project management
+│   ├── system-monitor/     # Performance monitoring
+│   └── code-integration/   # Editor integration
+├── components/
+│   ├── voice-provider.tsx  # Voice context
+│   ├── system-monitor-provider.tsx # System monitoring
+│   ├── voice-input-field.tsx # Voice input component
+│   └── custom-character-creator.tsx # Character creation
+└── lib/
+    ├── i18n.ts            # Multi-language support
+    └── language-context.tsx # Language provider
+\`\`\`
+
+### Adding New Features
+1. Create component in appropriate directory
+2. Add voice support using `useVoice` hook
+3. Integrate with system monitoring if needed
+4. Add translations for multi-language support
+5. Test with both English and Bengali
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Add translations for new features
-5. Submit a pull request
+3. Add voice support for new features
+4. Include Bengali translations
+5. Test system performance impact
+6. Submit a pull request
 
-## Support
-
-- **Documentation:** http://localhost:3000/documentation
-- **Troubleshooting:** http://localhost:3000/troubleshooting
-- **GitHub Issues:** [Create an issue](https://github.com/your-repo/issues)
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-\`\`\`
 
-This comprehensive update includes:
+## 🆘 Support
 
-1. **Multi-language support** (English and Bengali) with a complete translation system
-2. **Admin sidebar navigation** replacing the top header bar for better organization
-3. **Optimized layouts** for both public and admin interfaces
-4. **Windows installation scripts** (both batch and PowerShell) for automatic setup
-5. **Complete admin panel** with all the requested features
-6. **Responsive design** that works across all devices
-7. **Translation support** for all interface elements
+- **Documentation:** http://localhost:3000/documentation
+- **System Monitor:** http://localhost:3000/system-monitor
+- **Voice Help:** Say "help" in any voice input field
+- **GitHub Issues:** [Create an issue](https://github.com/your-repo/issues)
 
-The system now provides a professional admin interface with sidebar navigation, multi-language support, and easy Windows installation through automated scripts.
+---
+
+**Note:** This enhanced version includes comprehensive voice support, custom AI character creation, project-agent integration, daily planning features, and real-time system monitoring to ensure optimal performance while providing a rich, interactive development experience.
