@@ -119,7 +119,7 @@ export function AdminSidebar() {
   return (
     <div
       className={cn(
-        "bg-white border-r border-slate-200 flex flex-col transition-all duration-300",
+        "bg-white border-r border-slate-200 flex flex-col transition-all duration-300 h-screen",
         collapsed ? "w-16" : "w-64",
       )}
     >
@@ -128,8 +128,8 @@ export function AdminSidebar() {
         <div className="flex items-center justify-between">
           {!collapsed && (
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">{t("adminPanel")}</h2>
-              <p className="text-sm text-slate-600">{t("aiManagement")}</p>
+              <h2 className="text-lg font-semibold text-slate-900">Admin Panel</h2>
+              <p className="text-sm text-slate-600">AI Management</p>
             </div>
           )}
           <Button variant="ghost" size="sm" onClick={() => setCollapsed(!collapsed)} className="h-8 w-8 p-0">
@@ -143,7 +143,7 @@ export function AdminSidebar() {
         <nav className="p-4 space-y-2">
           <div className="space-y-1">
             {!collapsed && (
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">{t("administration")}</p>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Administration</p>
             )}
             {navigation.map((item) => {
               const isActive = pathname === item.href
@@ -160,7 +160,7 @@ export function AdminSidebar() {
                     <item.icon className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
                     {!collapsed && (
                       <>
-                        <span>{t(item.nameKey)}</span>
+                        <span>{item.name}</span>
                         {item.badge && (
                           <Badge variant="secondary" className="ml-auto">
                             {item.badge}
@@ -178,7 +178,7 @@ export function AdminSidebar() {
 
           <div className="space-y-1">
             {!collapsed && (
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">{t("publicAccess")}</p>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Public Access</p>
             )}
             {publicLinks.map((item) => (
               <Link key={item.href} href={item.href}>
@@ -190,7 +190,7 @@ export function AdminSidebar() {
                   )}
                 >
                   <item.icon className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
-                  {!collapsed && <span>{t(item.nameKey)}</span>}
+                  {!collapsed && <span>{item.name}</span>}
                 </Button>
               </Link>
             ))}
@@ -202,7 +202,7 @@ export function AdminSidebar() {
       {!collapsed && (
         <div className="p-4 border-t border-slate-200">
           <div className="space-y-2">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{t("language")}</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Language</p>
             <div className="flex gap-2">
               <Button
                 variant={language === "en" ? "default" : "outline"}
@@ -231,8 +231,8 @@ export function AdminSidebar() {
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           {!collapsed && (
             <div>
-              <p className="text-xs font-medium text-slate-900">{t("systemStatus")}</p>
-              <p className="text-xs text-slate-600">{t("allSystemsOperational")}</p>
+              <p className="text-xs font-medium text-slate-900">System Status</p>
+              <p className="text-xs text-slate-600">All Systems Operational</p>
             </div>
           )}
         </div>

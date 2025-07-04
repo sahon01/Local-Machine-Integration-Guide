@@ -28,10 +28,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <LanguageProvider>
-            <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+            <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
               <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
-                  <Link href="/" className="font-bold text-xl">
+                  <Link href="/" className="font-bold text-xl text-blue-600">
                     AI Dashboard
                   </Link>
                   <div className="flex items-center space-x-2">
@@ -51,15 +51,21 @@ export default function RootLayout({
                           <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent align="start">
                         <DropdownMenuItem asChild>
-                          <Link href="/ai-chat">AI Chat</Link>
+                          <Link href="/ai-chat" className="w-full">
+                            AI Chat
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/prompt-generator">Prompt Generator</Link>
+                          <Link href="/prompt-generator" className="w-full">
+                            Prompt Generator
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/project-ideas">Project Ideas</Link>
+                          <Link href="/project-ideas" className="w-full">
+                            Project Ideas
+                          </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -73,15 +79,21 @@ export default function RootLayout({
                           <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent align="start">
                         <DropdownMenuItem asChild>
-                          <Link href="/server/whm-domains">WHM Domains</Link>
+                          <Link href="/server/whm-domains" className="w-full">
+                            WHM Domains
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/server/access">Server Access</Link>
+                          <Link href="/server/access" className="w-full">
+                            Server Access
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/server/ssh-tools">SSH Tools</Link>
+                          <Link href="/server/ssh-tools" className="w-full">
+                            SSH Tools
+                          </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -95,18 +107,26 @@ export default function RootLayout({
                           <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent align="start">
                         <DropdownMenuItem asChild>
-                          <Link href="/database">Database Tools</Link>
+                          <Link href="/database" className="w-full">
+                            Database Tools
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/database/analysis">Database Analysis</Link>
+                          <Link href="/database/analysis" className="w-full">
+                            Database Analysis
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/database/connection">DB Connection</Link>
+                          <Link href="/database/connection" className="w-full">
+                            DB Connection
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/database/cpanel">cPanel DB Access</Link>
+                          <Link href="/database/cpanel" className="w-full">
+                            cPanel DB Access
+                          </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -120,21 +140,31 @@ export default function RootLayout({
                           <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent align="start">
                         <DropdownMenuItem asChild>
-                          <Link href="/commands/php">PHP Commands</Link>
+                          <Link href="/commands/php" className="w-full">
+                            PHP Commands
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/commands/nodejs">Node.js Commands</Link>
+                          <Link href="/commands/nodejs" className="w-full">
+                            Node.js Commands
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/commands/python">Python Commands</Link>
+                          <Link href="/commands/python" className="w-full">
+                            Python Commands
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/commands/linux">Linux Commands</Link>
+                          <Link href="/commands/linux" className="w-full">
+                            Linux Commands
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/commands/ollama">Ollama Commands</Link>
+                          <Link href="/commands/ollama" className="w-full">
+                            Ollama Commands
+                          </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -148,12 +178,16 @@ export default function RootLayout({
                           <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent align="start">
                         <DropdownMenuItem asChild>
-                          <Link href="/dev/git">Git Commands</Link>
+                          <Link href="/dev/git" className="w-full">
+                            Git Commands
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/dev/docker">Docker Commands</Link>
+                          <Link href="/dev/docker" className="w-full">
+                            Docker Commands
+                          </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -176,6 +210,12 @@ export default function RootLayout({
                       <Button variant="ghost" size="sm">
                         <BookOpen className="h-4 w-4 mr-2" />
                         Docs
+                      </Button>
+                    </Link>
+
+                    <Link href="/admin">
+                      <Button variant="default" size="sm">
+                        Admin Panel
                       </Button>
                     </Link>
                   </div>

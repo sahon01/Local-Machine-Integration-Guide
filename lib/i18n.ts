@@ -3,115 +3,83 @@ export const translations = {
     // Navigation
     dashboard: "Dashboard",
     models: "Models",
+    aiTools: "AI Tools",
+    serverMgmt: "Server Management",
     database: "Database",
-    server: "Server",
-    analytics: "Analytics",
+    commands: "Commands",
+    devTools: "Dev Tools",
     webhooks: "Webhooks",
-    users: "Users",
-    settings: "Settings",
+    documentation: "Documentation",
 
     // Admin Panel
     adminPanel: "Admin Panel",
     aiManagement: "AI Management",
     administration: "Administration",
     publicAccess: "Public Access",
-    publicDashboard: "Public Dashboard",
-    aiChat: "AI Chat",
-    documentation: "Documentation",
-    setupGuide: "Setup Guide",
-    troubleshooting: "Troubleshooting",
-
-    // System Status
     language: "Language",
     systemStatus: "System Status",
-    allSystemsOperational: "All systems operational",
+    allSystemsOperational: "All Systems Operational",
 
-    // Common
-    loading: "Loading...",
-    error: "Error",
-    success: "Success",
-    cancel: "Cancel",
-    save: "Save",
-    delete: "Delete",
-    edit: "Edit",
-    view: "View",
-    add: "Add",
-    remove: "Remove",
-
-    // Models
+    // Dashboard
+    dashboardTitle: "AI Management Dashboard",
+    dashboardDesc: "Monitor and manage your AI infrastructure",
     activeModels: "Active Models",
     totalRequests: "Total Requests",
-    averageResponse: "Average Response",
-    modelPerformance: "Model Performance",
+    avgResponseTime: "Avg Response Time",
+    connectedEditors: "Connected Editors",
 
-    // Database
-    databaseConnections: "Database Connections",
-    queryPerformance: "Query Performance",
-    backupStatus: "Backup Status",
-
-    // Server
-    serverUptime: "Server Uptime",
-    cpuUsage: "CPU Usage",
-    memoryUsage: "Memory Usage",
-    diskSpace: "Disk Space",
+    // Common
+    settings: "Settings",
+    publicDashboard: "Public Dashboard",
+    aiChat: "AI Chat",
+    setupGuide: "Setup Guide",
+    troubleshooting: "Troubleshooting",
+    analytics: "Analytics",
+    users: "Users",
   },
   bn: {
     // Navigation
     dashboard: "ড্যাশবোর্ড",
     models: "মডেল",
+    aiTools: "এআই টুলস",
+    serverMgmt: "সার্ভার ব্যবস্থাপনা",
     database: "ডেটাবেস",
-    server: "সার্ভার",
-    analytics: "বিশ্লেষণ",
+    commands: "কমান্ড",
+    devTools: "ডেভ টুলস",
     webhooks: "ওয়েবহুক",
-    users: "ব্যবহারকারী",
-    settings: "সেটিংস",
+    documentation: "ডকুমেন্টেশন",
 
     // Admin Panel
     adminPanel: "অ্যাডমিন প্যানেল",
     aiManagement: "এআই ব্যবস্থাপনা",
     administration: "প্রশাসন",
     publicAccess: "পাবলিক অ্যাক্সেস",
-    publicDashboard: "পাবলিক ড্যাশবোর্ড",
-    aiChat: "এআই চ্যাট",
-    documentation: "ডকুমেন্টেশন",
-    setupGuide: "সেটআপ গাইড",
-    troubleshooting: "সমস্যা সমাধান",
-
-    // System Status
     language: "ভাষা",
     systemStatus: "সিস্টেম স্ট্যাটাস",
     allSystemsOperational: "সব সিস্টেম চালু",
 
-    // Common
-    loading: "লোড হচ্ছে...",
-    error: "ত্রুটি",
-    success: "সফল",
-    cancel: "বাতিল",
-    save: "সংরক্ষণ",
-    delete: "মুছুন",
-    edit: "সম্পাদনা",
-    view: "দেখুন",
-    add: "যোগ করুন",
-    remove: "সরান",
-
-    // Models
+    // Dashboard
+    dashboardTitle: "এআই ম্যানেজমেন্ট ড্যাশবোর্ড",
+    dashboardDesc: "আপনার এআই অবকাঠামো পর্যবেক্ষণ এবং পরিচালনা করুন",
     activeModels: "সক্রিয় মডেল",
     totalRequests: "মোট অনুরোধ",
-    averageResponse: "গড় প্রতিক্রিয়া",
-    modelPerformance: "মডেল পারফরম্যান্স",
+    avgResponseTime: "গড় প্রতিক্রিয়ার সময়",
+    connectedEditors: "সংযুক্ত এডিটর",
 
-    // Database
-    databaseConnections: "ডেটাবেস সংযোগ",
-    queryPerformance: "কোয়েরি পারফরম্যান্স",
-    backupStatus: "ব্যাকআপ স্ট্যাটাস",
-
-    // Server
-    serverUptime: "সার্ভার আপটাইম",
-    cpuUsage: "সিপিইউ ব্যবহার",
-    memoryUsage: "মেমরি ব্যবহার",
-    diskSpace: "ডিস্ক স্পেস",
+    // Common
+    settings: "সেটিংস",
+    publicDashboard: "পাবলিক ড্যাশবোর্ড",
+    aiChat: "এআই চ্যাট",
+    setupGuide: "সেটআপ গাইড",
+    troubleshooting: "সমস্যা সমাধান",
+    analytics: "অ্যানালিটিক্স",
+    users: "ব্যবহারকারী",
   },
 }
 
 export type Language = keyof typeof translations
 export type TranslationKey = keyof typeof translations.en
+
+export function getTranslation(language: Language, key: TranslationKey): string {
+  return translations[language][key] || translations.en[key] || key
+}

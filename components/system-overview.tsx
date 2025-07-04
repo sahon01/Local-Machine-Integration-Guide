@@ -1,104 +1,240 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Activity, Cpu, HardDrive, MemoryStick, Wifi } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import {
+  Server,
+  Database,
+  Brain,
+  Headphones,
+  Shield,
+  Wifi,
+  HardDrive,
+  Cpu,
+  MemoryStick,
+  RefreshCw,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+} from "lucide-react"
+import { useState } from "react"
 
 export function SystemOverview() {
-  const systemStats = {
-    cpu: 45,
-    memory: 62,
-    disk: 78,
-    network: 23,
-    uptime: "2d 14h 32m",
-    activeConnections: 12,
+  const [refreshing, setRefreshing] = useState(false)
+
+  const systemComponents = [
+    {
+      name: "AI Models Server",
+      status: "online",
+      endpoint: "localhost:3307",
+      uptime: "99.8%",
+      lastCheck: "2 min ago",
+      icon: Brain,
+      color: "green",
+    },
+    {
+      name: "MySQL Database",
+      status: "online",
+      endpoint: "localhost:3306",
+      uptime: "99.9%",
+      lastCheck: "1 min ago",
+      icon: Database,
+      color: "blue",
+    },
+    {
+      name: "ElevenLabs Webhooks",
+      status: "online",
+      endpoint: "api.elevenlabs.io",
+      uptime: "98.5%",
+      lastCheck: "3 min ago",
+      icon: Headphones,
+      color: "purple",
+    },
+    {
+      name: "Web Server",
+      status: "online",
+      endpoint: "localhost:3000",
+      uptime: "100%",
+      lastCheck: "30 sec ago",
+      icon: Server,
+      color: "orange",
+    },
+  ]
+
+  const systemMetrics = [
+    {
+      name: "CPU Usage",
+      value: 45,
+      max: 100,
+      unit: "%",
+      status: "normal",
+      icon: Cpu,
+    },
+    {
+      name: "Memory Usage",
+      value: 6.2,
+      max: 16,
+      unit: "GB",
+      status: "normal",
+      icon: MemoryStick,
+    },
+    {
+      name: "Disk Usage",
+      value: 45,
+      max: 100,
+      unit: "GB",
+      status: "normal",
+      icon: HardDrive,
+    },
+    {
+      name: "Network I/O",
+      value: 125,
+      max: 1000,
+      unit: "MB/s",
+      status: "normal",
+      icon: Wifi,
+    },
+  ]
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    // Simulate refresh delay
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    setRefreshing(false)
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "online":
+        return <CheckCircle className="h-4 w-4 text-green-500" />
+      case "warning":
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />
+      case "offline":
+        return <XCircle className="h-4 w-4 text-red-500" />
+      default:
+        return <CheckCircle className="h-4 w-4 text-green-500" />
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "online":
+        return "bg-green-100 text-green-800 border-green-200"
+      case "warning":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "offline":
+        return "bg-red-100 text-red-800 border-red-200"
+      default:
+        return "bg-green-100 text-green-800 border-green-200"
+    }
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5" />
-          System Overview
-        </CardTitle>
-        <CardDescription>Real-time system performance and resource usage</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              System Overview
+            </CardTitle>
+            <CardDescription>Real-time monitoring of all system components and performance metrics</CardDescription>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* CPU Usage */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Cpu className="h-4 w-4 text-blue-500" />
-                <span className="font-medium">CPU Usage</span>
-              </div>
-              <span className="text-sm text-slate-600">{systemStats.cpu}%</span>
-            </div>
-            <Progress value={systemStats.cpu} className="h-2" />
-            <p className="text-xs text-slate-500">Intel Core i7-12700K</p>
-          </div>
-
-          {/* Memory Usage */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MemoryStick className="h-4 w-4 text-green-500" />
-                <span className="font-medium">Memory</span>
-              </div>
-              <span className="text-sm text-slate-600">{systemStats.memory}%</span>
-            </div>
-            <Progress value={systemStats.memory} className="h-2" />
-            <p className="text-xs text-slate-500">10.2GB / 16GB</p>
-          </div>
-
-          {/* Disk Usage */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <HardDrive className="h-4 w-4 text-orange-500" />
-                <span className="font-medium">Disk Space</span>
-              </div>
-              <span className="text-sm text-slate-600">{systemStats.disk}%</span>
-            </div>
-            <Progress value={systemStats.disk} className="h-2" />
-            <p className="text-xs text-slate-500">780GB / 1TB</p>
-          </div>
-
-          {/* Network Usage */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Wifi className="h-4 w-4 text-purple-500" />
-                <span className="font-medium">Network</span>
-              </div>
-              <span className="text-sm text-slate-600">{systemStats.network}%</span>
-            </div>
-            <Progress value={systemStats.network} className="h-2" />
-            <p className="text-xs text-slate-500">23MB/s throughput</p>
+      <CardContent className="space-y-6">
+        {/* System Components Status */}
+        <div>
+          <h3 className="font-semibold mb-4">System Components</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {systemComponents.map((component, index) => {
+              const IconComponent = component.icon
+              return (
+                <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {getStatusIcon(component.status)}
+                    <div className={`bg-${component.color}-100 text-${component.color}-800 rounded-lg p-2`}>
+                      <IconComponent className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">{component.name}</div>
+                      <div className="text-xs text-slate-600">{component.endpoint}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant="outline" className={getStatusColor(component.status)}>
+                      {component.status}
+                    </Badge>
+                    <div className="text-xs text-slate-600 mt-1">Uptime: {component.uptime}</div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
 
-        {/* Additional Stats */}
-        <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
-          <div className="flex items-center gap-4">
-            <div>
-              <p className="text-sm font-medium">System Uptime</p>
-              <p className="text-xs text-slate-600">{systemStats.uptime}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Active Connections</p>
-              <p className="text-xs text-slate-600">{systemStats.activeConnections} connections</p>
-            </div>
+        {/* System Metrics */}
+        <div>
+          <h3 className="font-semibold mb-4">System Metrics</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {systemMetrics.map((metric, index) => {
+              const IconComponent = metric.icon
+              const percentage = (metric.value / metric.max) * 100
+
+              return (
+                <div key={index} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="h-4 w-4 text-slate-600" />
+                      <span className="text-sm font-medium">{metric.name}</span>
+                    </div>
+                    <span className="text-sm text-slate-600">
+                      {metric.value}
+                      {metric.unit} / {metric.max}
+                      {metric.unit}
+                    </span>
+                  </div>
+                  <Progress value={percentage} className="h-2" />
+                  <div className="flex justify-between text-xs text-slate-500">
+                    <span>0{metric.unit}</span>
+                    <span>{percentage.toFixed(1)}% used</span>
+                    <span>
+                      {metric.max}
+                      {metric.unit}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
           </div>
-          <div className="flex gap-2">
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              Healthy
-            </Badge>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              All Services Running
-            </Badge>
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h3 className="font-semibold mb-4">Quick System Actions</h3>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm">
+              <Server className="h-4 w-4 mr-2" />
+              Restart Services
+            </Button>
+            <Button variant="outline" size="sm">
+              <Database className="h-4 w-4 mr-2" />
+              Database Backup
+            </Button>
+            <Button variant="outline" size="sm">
+              <Brain className="h-4 w-4 mr-2" />
+              Reload Models
+            </Button>
+            <Button variant="outline" size="sm">
+              <Shield className="h-4 w-4 mr-2" />
+              Security Scan
+            </Button>
           </div>
         </div>
       </CardContent>
