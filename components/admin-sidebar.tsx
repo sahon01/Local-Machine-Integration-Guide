@@ -22,6 +22,7 @@ import {
   Webhook,
   FileText,
   HelpCircle,
+  NotebookPen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/language-context"
@@ -63,6 +64,13 @@ const navigation = [
     nameKey: "webhooks",
     href: "/admin/webhooks",
     icon: Webhook,
+  },
+  {
+    name: "Productivity",
+    nameKey: "productivity",
+    href: "/admin/productivity",
+    icon: NotebookPen,
+    badge: "New",
   },
   {
     name: "Users",

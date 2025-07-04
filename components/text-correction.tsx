@@ -5,157 +5,106 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { FileText, CheckCircle, AlertCircle, Copy, Download, Wand2, RotateCcw } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CheckCircle, AlertCircle, FileText, Zap, Copy, Download } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
 interface CorrectionSuggestion {
+  id: string
+  type: "grammar" | "spelling" | "style" | "punctuation"
   original: string
-  corrected: string
-  type: "spelling" | "grammar" | "punctuation" | "style"
+  suggestion: string
   explanation: string
   position: { start: number; end: number }
 }
 
 export function TextCorrection() {
-  const [originalText, setOriginalText] = useState("")
+  const [inputText, setInputText] = useState("")
   const [correctedText, setCorrectedText] = useState("")
   const [suggestions, setSuggestions] = useState<CorrectionSuggestion[]>([])
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [activeTab, setActiveTab] = useState("input")
 
-  // Common Bengali spelling corrections
-  const bengaliCorrections = {
-    কোরান: "কুরআন",
-    নামায: "নামাজ",
-    রোযা: "রোজা",
-    হজ্জ: "হজ",
-    যাকাত: "জাকাত",
-    ইনশাল্লাহ: "ইনশাআল্লাহ",
-    মাশাল্লাহ: "মাশাআল্লাহ",
-    সুবহানাল্লাহ: "সুবহানাল্লাহি",
-    আলহামদুলিল্লাহ: "আলহামদুলিল্লাহি",
-    আস্তাগফিরুল্লাহ: "আস্তাগফিরুল্লাহ",
-    বিসমিল্লাহ: "বিসমিল্লাহির রাহমানির রাহিম",
-    জাযাকাল্লাহ: "জাযাকাল্লাহু খাইরান",
-    বারাকাল্লাহ: "বারাকাল্লাহু ফিকুম",
-  }
-
-  // Grammar rules for Bengali
-  const grammarRules = [
-    {
-      pattern: /\s+/g,
-      replacement: " ",
-      type: "spacing" as const,
-      explanation: "অতিরিক্ত স্পেস সরানো হয়েছে",
-    },
-    {
-      pattern: /([।!?])\s*([।!?])/g,
-      replacement: "$1 $2",
-      type: "punctuation" as const,
-      explanation: "যতিচিহ্নের মধ্যে সঠিক স্পেসিং",
-    },
-    {
-      pattern: /([।!?])\s*([a-zA-Zঅ-হ])/g,
-      replacement: "$1 $2",
-      type: "punctuation" as const,
-      explanation: "যতিচিহ্নের পর স্পেস যোগ করা হয়েছে",
-    },
-  ]
-
-  const processText = async () => {
-    if (!originalText.trim()) {
+  // Mock correction function - in real app, this would call an AI service
+  const analyzeText = async () => {
+    if (!inputText.trim()) {
       toast({
         title: "ত্রুটি!",
-        description: "টেক্সট লিখুন।",
+        description: "বিশ্লেষণের জন্য টেক্সট লিখুন।",
         variant: "destructive",
       })
       return
     }
 
-    setIsProcessing(true)
-    setShowSuggestions(false)
+    setIsAnalyzing(true)
 
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    // Simulate API call delay
+    await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    let processedText = originalText
-    const foundSuggestions: CorrectionSuggestion[] = []
+    // Mock suggestions
+    const mockSuggestions: CorrectionSuggestion[] = [
+      {
+        id: "1",
+        type: "grammar",
+        original: "আমি যাইতেছি",
+        suggestion: "আমি যাচ্ছি",
+        explanation: "সঠিক ব্যাকরণ অনুযায়ী 'যাচ্ছি' ব্যবহার করুন",
+        position: { start: 0, end: 10 },
+      },
+      {
+        id: "2",
+        type: "spelling",
+        original: "বাংলাদেশ",
+        suggestion: "বাংলাদেশ",
+        explanation: "বানান সঠিক আছে",
+        position: { start: 15, end: 23 },
+      },
+      {
+        id: "3",
+        type: "punctuation",
+        original: "কেমন আছেন",
+        suggestion: "কেমন আছেন?",
+        explanation: "প্রশ্নবোধক চিহ্ন যোগ করুন",
+        position: { start: 25, end: 35 },
+      },
+    ]
 
-    // Apply Bengali spelling corrections
-    Object.entries(bengaliCorrections).forEach(([wrong, correct]) => {
-      const regex = new RegExp(wrong, "g")
-      let match
-      while ((match = regex.exec(originalText)) !== null) {
-        foundSuggestions.push({
-          original: wrong,
-          corrected: correct,
-          type: "spelling",
-          explanation: `"${wrong}" এর সঠিক বানান "${correct}"`,
-          position: { start: match.index, end: match.index + wrong.length },
-        })
-      }
-      processedText = processedText.replace(regex, correct)
+    setSuggestions(mockSuggestions)
+
+    // Apply corrections
+    let corrected = inputText
+    mockSuggestions.forEach((suggestion) => {
+      corrected = corrected.replace(suggestion.original, suggestion.suggestion)
     })
+    setCorrectedText(corrected)
 
-    // Apply grammar rules
-    grammarRules.forEach((rule) => {
-      const matches = [...originalText.matchAll(rule.pattern)]
-      matches.forEach((match) => {
-        if (match.index !== undefined) {
-          foundSuggestions.push({
-            original: match[0],
-            corrected: match[0].replace(rule.pattern, rule.replacement),
-            type: rule.type,
-            explanation: rule.explanation,
-            position: { start: match.index, end: match.index + match[0].length },
-          })
-        }
-      })
-      processedText = processedText.replace(rule.pattern, rule.replacement)
-    })
-
-    // Additional style suggestions
-    if (processedText.includes("আমি")) {
-      const matches = [...processedText.matchAll(/আমি/g)]
-      matches.forEach((match) => {
-        if (match.index !== undefined) {
-          foundSuggestions.push({
-            original: "আমি",
-            corrected: "আমি",
-            type: "style",
-            explanation: 'ফর্মাল লেখায় "আমি" এর পরিবর্তে "আমরা" ব্যবহার করা যেতে পারে',
-            position: { start: match.index, end: match.index + 2 },
-          })
-        }
-      })
-    }
-
-    setCorrectedText(processedText)
-    setSuggestions(foundSuggestions)
-    setIsProcessing(false)
-    setShowSuggestions(true)
+    setIsAnalyzing(false)
+    setActiveTab("results")
 
     toast({
-      title: "টেক্সট সংশোধন সম্পন্ন! ✅",
-      description: `${foundSuggestions.length}টি সংশোধনী পাওয়া গেছে।`,
+      title: "বিশ্লেষণ সম্পন্ন! ✅",
+      description: `${mockSuggestions.length}টি সাজেশন পাওয়া গেছে।`,
     })
   }
 
-  const applySuggestion = (index: number) => {
-    const suggestion = suggestions[index]
-    const newText = correctedText.replace(suggestion.original, suggestion.corrected)
+  const applySuggestion = (suggestionId: string) => {
+    const suggestion = suggestions.find((s) => s.id === suggestionId)
+    if (!suggestion) return
+
+    const newText = inputText.replace(suggestion.original, suggestion.suggestion)
+    setInputText(newText)
     setCorrectedText(newText)
 
     // Remove applied suggestion
-    setSuggestions((prev) => prev.filter((_, i) => i !== index))
+    setSuggestions((prev) => prev.filter((s) => s.id !== suggestionId))
 
     toast({
-      title: "সংশোধনী প্রয়োগ করা হয়েছে! ✅",
-      description: `"${suggestion.original}" → "${suggestion.corrected}"`,
+      title: "সাজেশন প্রয়োগ হয়েছে! ✅",
+      description: "টেক্সট আপডেট করা হয়েছে।",
     })
   }
 
-  const copyText = (text: string) => {
+  const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     toast({
       title: "কপি হয়েছে! 📋",
@@ -180,46 +129,42 @@ export function TextCorrection() {
     })
   }
 
-  const resetText = () => {
-    setOriginalText("")
-    setCorrectedText("")
-    setSuggestions([])
-    setShowSuggestions(false)
-
-    toast({
-      title: "রিসেট করা হয়েছে! 🔄",
-      description: "সব টেক্সট পরিষ্কার করা হয়েছে।",
-    })
-  }
-
   const getSuggestionTypeColor = (type: string) => {
     switch (type) {
-      case "spelling":
-        return "bg-red-100 text-red-800 border-red-200"
       case "grammar":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      case "punctuation":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-red-100 text-red-800"
+      case "spelling":
+        return "bg-blue-100 text-blue-800"
       case "style":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return "bg-green-100 text-green-800"
+      case "punctuation":
+        return "bg-yellow-100 text-yellow-800"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 text-gray-800"
     }
   }
 
   const getSuggestionTypeText = (type: string) => {
     switch (type) {
-      case "spelling":
-        return "বানান"
       case "grammar":
         return "ব্যাকরণ"
-      case "punctuation":
-        return "যতিচিহ্ন"
+      case "spelling":
+        return "বানান"
       case "style":
         return "শৈলী"
+      case "punctuation":
+        return "যতিচিহ্ন"
       default:
         return "অন্যান্য"
     }
+  }
+
+  const stats = {
+    total: suggestions.length,
+    grammar: suggestions.filter((s) => s.type === "grammar").length,
+    spelling: suggestions.filter((s) => s.type === "spelling").length,
+    style: suggestions.filter((s) => s.type === "style").length,
+    punctuation: suggestions.filter((s) => s.type === "punctuation").length,
   }
 
   return (
@@ -228,219 +173,208 @@ export function TextCorrection() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">টেক্সট সংশোধন</h2>
-          <p className="text-gray-600">স্বয়ংক্রিয় বানান, ব্যাকরণ এবং শৈলী সংশোধন</p>
+          <p className="text-gray-600">স্বয়ংক্রিয় টেক্সট সংশোধন এবং ব্যাকরণ পরীক্ষা</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={resetText} variant="outline">
-            <RotateCcw className="h-4 w-4 mr-2" />
-            রিসেট
-          </Button>
-        </div>
+        <Button onClick={analyzeText} disabled={isAnalyzing} className="bg-blue-600 hover:bg-blue-700">
+          {isAnalyzing ? (
+            <>
+              <Zap className="h-4 w-4 mr-2 animate-spin" />
+              বিশ্লেষণ করছি...
+            </>
+          ) : (
+            <>
+              <Zap className="h-4 w-4 mr-2" />
+              টেক্সট বিশ্লেষণ করুন
+            </>
+          )}
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Input Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              মূল টেক্সট
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Textarea
-              value={originalText}
-              onChange={(e) => setOriginalText(e.target.value)}
-              placeholder="এখানে আপনার টেক্সট লিখুন...
+      {/* Stats */}
+      {suggestions.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+              <div className="text-sm text-gray-600">মোট সাজেশন</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-red-600">{stats.grammar}</div>
+              <div className="text-sm text-gray-600">ব্যাকরণ</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{stats.spelling}</div>
+              <div className="text-sm text-gray-600">বানান</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">{stats.style}</div>
+              <div className="text-sm text-gray-600">শৈলী</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-yellow-600">{stats.punctuation}</div>
+              <div className="text-sm text-gray-600">যতিচিহ্ন</div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="input">টেক্সট ইনপুট</TabsTrigger>
+          <TabsTrigger value="suggestions">সাজেশন</TabsTrigger>
+          <TabsTrigger value="results">ফলাফল</TabsTrigger>
+        </TabsList>
+
+        {/* Input Tab */}
+        <TabsContent value="input">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                টেক্সট ইনপুট
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="এখানে আপনার টেক্সট লিখুন যা সংশোধন করতে চান...
 
 উদাহরণ:
-আসসালামু আলাইকুম। আমি আজ নামায পড়েছি এবং কোরান তেলাওয়াত করেছি। ইনশাল্লাহ রোযা রাখব। আলহামদুলিল্লাহ।"
-              className="min-h-[300px] font-mono text-sm"
-            />
+আমি যাইতেছি বাংলাদেশ কেমন আছেন
+আপনার নাম কি
+আমি ভাল আছি ধন্যবাদ"
+                  className="min-h-[300px] font-mono text-sm leading-relaxed"
+                />
 
-            <div className="flex gap-2">
-              <Button
-                onClick={processText}
-                disabled={isProcessing || !originalText.trim()}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {isProcessing ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    প্রক্রিয়াকরণ...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    সংশোধন করুন
-                  </>
-                )}
-              </Button>
-
-              <Button onClick={() => copyText(originalText)} variant="outline" disabled={!originalText.trim()}>
-                <Copy className="h-4 w-4 mr-2" />
-                কপি
-              </Button>
-
-              <Button
-                onClick={() => downloadText(originalText, "original-text.txt")}
-                variant="outline"
-                disabled={!originalText.trim()}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                ডাউনলোড
-              </Button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="font-bold text-blue-600">{originalText.length}</div>
-                <div className="text-gray-600">অক্ষর</div>
-              </div>
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="font-bold text-green-600">
-                  {
-                    originalText
-                      .trim()
-                      .split(/\s+/)
-                      .filter((word) => word.length > 0).length
-                  }
-                </div>
-                <div className="text-gray-600">শব্দ</div>
-              </div>
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="font-bold text-purple-600">{originalText.split("\n").length}</div>
-                <div className="text-gray-600">লাইন</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Output Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              সংশোধিত টেক্সট
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Textarea
-              value={correctedText}
-              onChange={(e) => setCorrectedText(e.target.value)}
-              placeholder="সংশোধিত টেক্সট এখানে দেখাবে..."
-              className="min-h-[300px] font-mono text-sm"
-              readOnly={!correctedText}
-            />
-
-            <div className="flex gap-2">
-              <Button onClick={() => copyText(correctedText)} variant="outline" disabled={!correctedText.trim()}>
-                <Copy className="h-4 w-4 mr-2" />
-                কপি
-              </Button>
-
-              <Button
-                onClick={() => downloadText(correctedText, "corrected-text.txt")}
-                variant="outline"
-                disabled={!correctedText.trim()}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                ডাউনলোড
-              </Button>
-            </div>
-
-            {/* Improvement Stats */}
-            {correctedText && (
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="text-center p-2 bg-green-50 rounded">
-                  <div className="font-bold text-green-600">{suggestions.length}</div>
-                  <div className="text-gray-600">সংশোধনী</div>
-                </div>
-                <div className="text-center p-2 bg-blue-50 rounded">
-                  <div className="font-bold text-blue-600">
-                    {Math.round(((originalText.length - correctedText.length) / originalText.length) * 100) || 0}%
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    {inputText.length} অক্ষর | {inputText.split(/\s+/).filter((w) => w.length > 0).length} শব্দ
                   </div>
-                  <div className="text-gray-600">উন্নতি</div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Suggestions */}
-      {showSuggestions && suggestions.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              সংশোধনীর পরামর্শ ({suggestions.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {suggestions.map((suggestion, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge className={getSuggestionTypeColor(suggestion.type)} variant="outline">
-                          {getSuggestionTypeText(suggestion.type)}
-                        </Badge>
-                      </div>
-
-                      <div className="text-sm space-y-1">
-                        <div>
-                          <span className="text-gray-600">মূল:</span>
-                          <span className="ml-2 bg-red-100 px-2 py-1 rounded text-red-800">
-                            "{suggestion.original}"
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">সংশোধিত:</span>
-                          <span className="ml-2 bg-green-100 px-2 py-1 rounded text-green-800">
-                            "{suggestion.corrected}"
-                          </span>
-                        </div>
-                        <div className="text-gray-600 text-xs">{suggestion.explanation}</div>
-                      </div>
-                    </div>
-
-                    <Button onClick={() => applySuggestion(index)} size="sm" className="ml-4">
-                      প্রয়োগ করুন
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setInputText("")}>
+                      পরিষ্কার করুন
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(inputText)}>
+                      <Copy className="h-4 w-4 mr-1" />
+                      কপি
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Help Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">সাহায্য ও টিপস</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm space-y-2">
-          <div>
-            <strong>বানান সংশোধন:</strong> সাধারণ ভুল বানান স্বয়ংক্রিয়ভাবে সংশোধিত হবে
-          </div>
-          <div>
-            <strong>ব্যাকরণ পরীক্ষা:</strong> বাক্য গঠন এবং শব্দ ব্যবহার পরীক্ষা করা হবে
-          </div>
-          <div>
-            <strong>যতিচিহ্ন:</strong> সঠিক যতিচিহ্ন এবং স্পেসিং নিশ্চিত করা হবে
-          </div>
-          <div>
-            <strong>শৈলী উন্নতি:</strong> আরও ভাল লেখার জন্য পরামর্শ দেওয়া হবে
-          </div>
-          <div>
-            <strong>ইসলামিক পরিভাষা:</strong> আরবি শব্দের সঠিক বানান নিশ্চিত করা হবে
-          </div>
-        </CardContent>
-      </Card>
+        {/* Suggestions Tab */}
+        <TabsContent value="suggestions">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5" />
+                সংশোধনের সাজেশন
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {suggestions.length > 0 ? (
+                <div className="space-y-4">
+                  {suggestions.map((suggestion) => (
+                    <div key={suggestion.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <Badge className={getSuggestionTypeColor(suggestion.type)} variant="outline">
+                            {getSuggestionTypeText(suggestion.type)}
+                          </Badge>
+                        </div>
+                        <Button size="sm" onClick={() => applySuggestion(suggestion.id)}>
+                          প্রয়োগ করুন
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-sm font-medium text-red-600">আগে:</span>
+                            <div className="bg-red-50 p-2 rounded text-sm">{suggestion.original}</div>
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-green-600">পরে:</span>
+                            <div className="bg-green-50 p-2 rounded text-sm">{suggestion.suggestion}</div>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-600">ব্যাখ্যা:</span>
+                          <p className="text-sm text-gray-700 mt-1">{suggestion.explanation}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-semibold mb-2">কোন সাজেশন নেই</h3>
+                  <p>প্রথমে টেক্সট বিশ্লেষণ করুন</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Results Tab */}
+        <TabsContent value="results">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  সংশোধিত টেক্সট
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => copyToClipboard(correctedText)}>
+                    <Copy className="h-4 w-4 mr-1" />
+                    কপি
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => downloadText(correctedText, "সংশোধিত-টেক্সট.txt")}>
+                    <Download className="h-4 w-4 mr-1" />
+                    ডাউনলোড
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {correctedText ? (
+                <div className="space-y-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{correctedText}</div>
+                  </div>
+
+                  <div className="text-sm text-gray-500">
+                    সংশোধিত টেক্সট: {correctedText.length} অক্ষর |{" "}
+                    {correctedText.split(/\s+/).filter((w) => w.length > 0).length} শব্দ
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <CheckCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-semibold mb-2">কোন ফলাফল নেই</h3>
+                  <p>প্রথমে টেক্সট বিশ্লেষণ করুন</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
