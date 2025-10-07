@@ -1,36 +1,37 @@
 "use client"
 
 import { useState } from "react"
-import { toast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Trash2, Plus, Eye, EyeOff } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
+import { User, Palette, BookOpen, Trash2 } from "lucide-react"
 
 interface Character {
   id: string
   name: string
-  description: string
+  age: number
+  gender: string
   appearance: {
-    skinColor: string
+    height: string
+    build: string
+    skinTone: string
     hairColor: string
+    hairStyle: string
     eyeColor: string
-    height: number
-    build: "slim" | "average" | "muscular"
+    facialFeatures: string[]
   }
   personality: {
     traits: string[]
-    mood: string
-    energy: number
-    friendliness: number
+    likes: string[]
+    dislikes: string[]
+    fears: string[]
+    goals: string[]
   }
   clothing: {
     style: string
@@ -39,7 +40,9 @@ interface Character {
   }
   background: {
     occupation: string
-    hobbies: string[]
+    origin: string
+    education: string
+    family: string
     backstory: string
   }
 }
@@ -47,653 +50,558 @@ interface Character {
 export function CustomCharacter() {
   const [characters, setCharacters] = useState<Character[]>([])
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [previewMode, setPreviewMode] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
   const [newCharacter, setNewCharacter] = useState<Partial<Character>>({
     name: "",
-    description: "",
+    age: 25,
+    gender: "male",
     appearance: {
-      skinColor: "#F4C2A1",
-      hairColor: "#8B4513",
-      eyeColor: "#654321",
-      height: 170,
+      height: "average",
       build: "average",
+      skinTone: "",
+      hairColor: "",
+      hairStyle: "",
+      eyeColor: "",
+      facialFeatures: [],
     },
     personality: {
       traits: [],
-      mood: "খুশি",
-      energy: 50,
-      friendliness: 50,
+      likes: [],
+      dislikes: [],
+      fears: [],
+      goals: [],
     },
     clothing: {
-      style: "ক্যাজুয়াল",
-      colors: ["#0066CC", "#FFFFFF"],
+      style: "",
+      colors: [],
       accessories: [],
     },
     background: {
       occupation: "",
-      hobbies: [],
+      origin: "",
+      education: "",
+      family: "",
       backstory: "",
     },
   })
 
-  const personalityTraits = [
-    "বন্ধুত্বপূর্ণ",
-    "বুদ্ধিমান",
-    "সৃজনশীল",
-    "সাহসী",
-    "দয়ালু",
-    "হাস্যরসিক",
-    "ধৈর্যশীল",
-    "উৎসাহী",
-    "নির্ভরযোগ্য",
-    "অভিযানপ্রিয়",
-  ]
-
-  const clothingStyles = ["ক্যাজুয়াল", "ফর্মাল", "ঐতিহ্যবাহী", "আধুনিক", "স্পোর্টস", "আর্টিস্টিক"]
-
-  const accessories = ["চশমা", "টুপি", "গহনা", "ঘড়ি", "ব্যাগ", "স্কার্ফ", "বেল্ট"]
-
-  const hobbies = [
-    "পড়া",
-    "লেখা",
-    "গান",
-    "নাচ",
-    "রান্না",
-    "ভ্রমণ",
-    "ফটোগ্রাফি",
-    "খেলাধুলা",
-    "গার্ডেনিং",
-    "পেইন্টিং",
-    "প্রোগ্রামিং",
-    "সিনেমা দেখা",
-  ]
-
-  const createCharacter = () => {
-    if (!newCharacter.name?.trim()) {
-      toast({
-        title: "ত্রুটি!",
-        description: "ক্যারেক্টারের নাম দিন।",
-        variant: "destructive",
-      })
-      return
-    }
-
+  const handleCreateCharacter = () => {
     const character: Character = {
       id: Date.now().toString(),
-      name: newCharacter.name,
-      description: newCharacter.description || "",
-      appearance: newCharacter.appearance!,
-      personality: newCharacter.personality!,
-      clothing: newCharacter.clothing!,
-      background: newCharacter.background!,
-    }
+      name: newCharacter.name || "Unnamed Character",
+      age: newCharacter.age || 25,
+      gender: newCharacter.gender || "male",
+      appearance: newCharacter.appearance || {},
+      personality: newCharacter.personality || {},
+      clothing: newCharacter.clothing || {},
+      background: newCharacter.background || {},
+    } as Character
 
-    setCharacters((prev) => [...prev, character])
-    setSelectedCharacter(character)
-    setShowCreateForm(false)
-
-    // Reset form
+    setCharacters([...characters, character])
+    setIsCreating(false)
     setNewCharacter({
       name: "",
-      description: "",
+      age: 25,
+      gender: "male",
       appearance: {
-        skinColor: "#F4C2A1",
-        hairColor: "#8B4513",
-        eyeColor: "#654321",
-        height: 170,
+        height: "average",
         build: "average",
+        skinTone: "",
+        hairColor: "",
+        hairStyle: "",
+        eyeColor: "",
+        facialFeatures: [],
       },
       personality: {
         traits: [],
-        mood: "খুশি",
-        energy: 50,
-        friendliness: 50,
+        likes: [],
+        dislikes: [],
+        fears: [],
+        goals: [],
       },
       clothing: {
-        style: "ক্যাজুয়াল",
-        colors: ["#0066CC", "#FFFFFF"],
+        style: "",
+        colors: [],
         accessories: [],
       },
       background: {
         occupation: "",
-        hobbies: [],
+        origin: "",
+        education: "",
+        family: "",
         backstory: "",
       },
     })
-
-    toast({
-      title: "সফল!",
-      description: `${character.name} ক্যারেক্টার তৈরি হয়েছে।`,
-    })
   }
 
-  const deleteCharacter = (id: string) => {
-    setCharacters((prev) => prev.filter((char) => char.id !== id))
+  const handleDeleteCharacter = (id: string) => {
+    setCharacters(characters.filter((c) => c.id !== id))
     if (selectedCharacter?.id === id) {
       setSelectedCharacter(null)
     }
-    toast({
-      title: "মুছে ফেলা হয়েছে",
-      description: "ক্যারেক্টার মুছে ফেলা হয়েছে।",
-    })
-  }
-
-  const toggleTrait = (trait: string) => {
-    setNewCharacter((prev) => ({
-      ...prev,
-      personality: {
-        ...prev.personality!,
-        traits: prev.personality!.traits.includes(trait)
-          ? prev.personality!.traits.filter((t) => t !== trait)
-          : [...prev.personality!.traits, trait],
-      },
-    }))
-  }
-
-  const toggleAccessory = (accessory: string) => {
-    setNewCharacter((prev) => ({
-      ...prev,
-      clothing: {
-        ...prev.clothing!,
-        accessories: prev.clothing!.accessories.includes(accessory)
-          ? prev.clothing!.accessories.filter((a) => a !== accessory)
-          : [...prev.clothing!.accessories, accessory],
-      },
-    }))
-  }
-
-  const toggleHobby = (hobby: string) => {
-    setNewCharacter((prev) => ({
-      ...prev,
-      background: {
-        ...prev.background!,
-        hobbies: prev.background!.hobbies.includes(hobby)
-          ? prev.background!.hobbies.filter((h) => h !== hobby)
-          : [...prev.background!.hobbies, hobby],
-      },
-    }))
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">কাস্টম ক্যারেক্টার</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setPreviewMode(!previewMode)}>
-            {previewMode ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-            {previewMode ? "এডিট মোড" : "প্রিভিউ মোড"}
-          </Button>
-          <Button onClick={() => setShowCreateForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            নতুন ক্যারেক্টার
-          </Button>
+        <div>
+          <h2 className="text-2xl font-bold">কাস্টম চরিত্র তৈরি করুন</h2>
+          <p className="text-muted-foreground">আপনার নিজস্ব AI চরিত্র ডিজাইন এবং পরিচালনা করুন</p>
         </div>
+        <Button onClick={() => setIsCreating(true)}>
+          <User className="mr-2 h-4 w-4" />
+          নতুন চরিত্র
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Character List */}
-        <Card>
+        <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>ক্যারেক্টার তালিকা</CardTitle>
-            <CardDescription>{characters.length} টি ক্যারেক্টার তৈরি হয়েছে</CardDescription>
+            <CardTitle>চরিত্রের তালিকা</CardTitle>
+            <CardDescription>{characters.length} টি চরিত্র</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {characters.map((character) => (
-              <div
-                key={character.id}
-                className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                  selectedCharacter?.id === character.id ? "bg-primary/10 border-primary" : "hover:bg-muted"
-                }`}
-                onClick={() => setSelectedCharacter(character)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback style={{ backgroundColor: character.appearance.skinColor }}>
-                        {character.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
+            {characters.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">কোন চরিত্র নেই। নতুন তৈরি করুন।</p>
+            ) : (
+              characters.map((character) => (
+                <div
+                  key={character.id}
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedCharacter?.id === character.id ? "border-primary bg-primary/5" : "hover:bg-muted"
+                  }`}
+                  onClick={() => setSelectedCharacter(character)}
+                >
+                  <div className="flex justify-between items-start">
                     <div>
                       <p className="font-medium">{character.name}</p>
-                      <p className="text-sm text-muted-foreground">{character.background.occupation || "পেশা নেই"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {character.age} বছর •{" "}
+                        {character.gender === "male" ? "পুরুষ" : character.gender === "female" ? "মহিলা" : "অন্যান্য"}
+                      </p>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteCharacter(character.id)
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      deleteCharacter(character.id)
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
-              </div>
-            ))}
-            {characters.length === 0 && <p className="text-center text-muted-foreground py-8">কোনো ক্যারেক্টার নেই</p>}
-          </CardContent>
-        </Card>
-
-        {/* Character Details/Preview */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>{selectedCharacter ? selectedCharacter.name : "ক্যারেক্টার নির্বাচন করুন"}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {selectedCharacter ? (
-              <Tabs defaultValue="appearance" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="appearance">চেহারা</TabsTrigger>
-                  <TabsTrigger value="personality">ব্যক্তিত্ব</TabsTrigger>
-                  <TabsTrigger value="clothing">পোশাক</TabsTrigger>
-                  <TabsTrigger value="background">পটভূমি</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="appearance" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>ত্বকের রং</Label>
-                      <div
-                        className="w-full h-10 rounded border"
-                        style={{ backgroundColor: selectedCharacter.appearance.skinColor }}
-                      />
-                    </div>
-                    <div>
-                      <Label>চুলের রং</Label>
-                      <div
-                        className="w-full h-10 rounded border"
-                        style={{ backgroundColor: selectedCharacter.appearance.hairColor }}
-                      />
-                    </div>
-                    <div>
-                      <Label>চোখের রং</Label>
-                      <div
-                        className="w-full h-10 rounded border"
-                        style={{ backgroundColor: selectedCharacter.appearance.eyeColor }}
-                      />
-                    </div>
-                    <div>
-                      <Label>উচ্চতা: {selectedCharacter.appearance.height} সেমি</Label>
-                      <div className="mt-2">
-                        <Badge variant="outline">{selectedCharacter.appearance.build}</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="personality" className="space-y-4">
-                  <div>
-                    <Label>ব্যক্তিত্বের বৈশিষ্ট্য</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedCharacter.personality.traits.map((trait) => (
-                        <Badge key={trait} variant="secondary">
-                          {trait}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>মেজাজ: {selectedCharacter.personality.mood}</Label>
-                    </div>
-                    <div>
-                      <Label>শক্তি: {selectedCharacter.personality.energy}%</Label>
-                    </div>
-                    <div>
-                      <Label>বন্ধুত্ব: {selectedCharacter.personality.friendliness}%</Label>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="clothing" className="space-y-4">
-                  <div>
-                    <Label>পোশাকের স্টাইল: {selectedCharacter.clothing.style}</Label>
-                  </div>
-                  <div>
-                    <Label>রং</Label>
-                    <div className="flex gap-2 mt-2">
-                      {selectedCharacter.clothing.colors.map((color, index) => (
-                        <div key={index} className="w-8 h-8 rounded border" style={{ backgroundColor: color }} />
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>আনুষাঙ্গিক</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedCharacter.clothing.accessories.map((accessory) => (
-                        <Badge key={accessory} variant="outline">
-                          {accessory}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="background" className="space-y-4">
-                  <div>
-                    <Label>পেশা</Label>
-                    <p className="mt-1">{selectedCharacter.background.occupation || "নির্দিষ্ট নয়"}</p>
-                  </div>
-                  <div>
-                    <Label>শখ</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedCharacter.background.hobbies.map((hobby) => (
-                        <Badge key={hobby} variant="secondary">
-                          {hobby}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>পটভূমির গল্প</Label>
-                    <p className="mt-1 text-sm">{selectedCharacter.background.backstory || "কোনো গল্প নেই"}</p>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">একটি ক্যারেক্টার নির্বাচন করুন বা নতুন তৈরি করুন</p>
-              </div>
+              ))
             )}
           </CardContent>
         </Card>
-      </div>
 
-      {/* Create Character Form */}
-      {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>নতুন ক্যারেক্টার তৈরি করুন</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="basic" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="basic">মূল তথ্য</TabsTrigger>
-                <TabsTrigger value="appearance">চেহারা</TabsTrigger>
-                <TabsTrigger value="personality">ব্যক্তিত্ব</TabsTrigger>
-                <TabsTrigger value="details">বিস্তারিত</TabsTrigger>
-              </TabsList>
+        {/* Character Details or Creation Form */}
+        <Card className="lg:col-span-2">
+          {isCreating ? (
+            <>
+              <CardHeader>
+                <CardTitle>নতুন চরিত্র তৈরি করুন</CardTitle>
+                <CardDescription>সম্পূর্ণ বিবরণ পূরণ করুন</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="basic">মৌলিক</TabsTrigger>
+                    <TabsTrigger value="appearance">চেহারা</TabsTrigger>
+                    <TabsTrigger value="personality">ব্যক্তিত্ব</TabsTrigger>
+                    <TabsTrigger value="background">পটভূমি</TabsTrigger>
+                  </TabsList>
 
-              <TabsContent value="basic" className="space-y-4">
-                <div>
-                  <Label htmlFor="name">নাম *</Label>
-                  <Input
-                    id="name"
-                    value={newCharacter.name}
-                    onChange={(e) => setNewCharacter((prev) => ({ ...prev, name: e.target.value }))}
-                    placeholder="ক্যারেক্টারের নাম"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">বর্ণনা</Label>
-                  <Textarea
-                    id="description"
-                    value={newCharacter.description}
-                    onChange={(e) => setNewCharacter((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="ক্যারেক্টারের সংক্ষিপ্ত বর্ণনা"
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="appearance" className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="skinColor">ত্বকের রং</Label>
-                    <Input
-                      id="skinColor"
-                      type="color"
-                      value={newCharacter.appearance?.skinColor}
-                      onChange={(e) =>
-                        setNewCharacter((prev) => ({
-                          ...prev,
-                          appearance: { ...prev.appearance!, skinColor: e.target.value },
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="hairColor">চুলের রং</Label>
-                    <Input
-                      id="hairColor"
-                      type="color"
-                      value={newCharacter.appearance?.hairColor}
-                      onChange={(e) =>
-                        setNewCharacter((prev) => ({
-                          ...prev,
-                          appearance: { ...prev.appearance!, hairColor: e.target.value },
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="eyeColor">চোখের রং</Label>
-                    <Input
-                      id="eyeColor"
-                      type="color"
-                      value={newCharacter.appearance?.eyeColor}
-                      onChange={(e) =>
-                        setNewCharacter((prev) => ({
-                          ...prev,
-                          appearance: { ...prev.appearance!, eyeColor: e.target.value },
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label>শরীরের গঠন</Label>
-                    <Select
-                      value={newCharacter.appearance?.build}
-                      onValueChange={(value: "slim" | "average" | "muscular") =>
-                        setNewCharacter((prev) => ({
-                          ...prev,
-                          appearance: { ...prev.appearance!, build: value },
-                        }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="slim">চিকন</SelectItem>
-                        <SelectItem value="average">স্বাভাবিক</SelectItem>
-                        <SelectItem value="muscular">পেশীবহুল</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label>উচ্চতা: {newCharacter.appearance?.height} সেমি</Label>
-                  <Slider
-                    value={[newCharacter.appearance?.height || 170]}
-                    onValueChange={([value]) =>
-                      setNewCharacter((prev) => ({
-                        ...prev,
-                        appearance: { ...prev.appearance!, height: value },
-                      }))
-                    }
-                    min={140}
-                    max={200}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="personality" className="space-y-4">
-                <div>
-                  <Label>ব্যক্তিত্বের বৈশিষ্ট্য</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {personalityTraits.map((trait) => (
-                      <div key={trait} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={trait}
-                          checked={newCharacter.personality?.traits.includes(trait)}
-                          onCheckedChange={() => toggleTrait(trait)}
+                  {/* Basic Info */}
+                  <TabsContent value="basic" className="space-y-4">
+                    <div>
+                      <Label>নাম *</Label>
+                      <Input
+                        value={newCharacter.name}
+                        onChange={(e) => setNewCharacter({ ...newCharacter, name: e.target.value })}
+                        placeholder="চরিত্রের নাম"
+                      />
+                    </div>
+                    <div>
+                      <Label>বয়স *</Label>
+                      <div className="flex items-center gap-4">
+                        <Slider
+                          value={[newCharacter.age || 25]}
+                          onValueChange={([value]) => setNewCharacter({ ...newCharacter, age: value })}
+                          min={1}
+                          max={100}
+                          step={1}
+                          className="flex-1"
                         />
-                        <Label htmlFor={trait} className="text-sm">
-                          {trait}
-                        </Label>
+                        <span className="w-12 text-center">{newCharacter.age}</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <Label>মেজাজ</Label>
-                  <Select
-                    value={newCharacter.personality?.mood}
-                    onValueChange={(value) =>
-                      setNewCharacter((prev) => ({
-                        ...prev,
-                        personality: { ...prev.personality!, mood: value },
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="খুশি">খুশি</SelectItem>
-                      <SelectItem value="শান্ত">শান্ত</SelectItem>
-                      <SelectItem value="উৎসাহী">উৎসাহী</SelectItem>
-                      <SelectItem value="গম্ভীর">গম্ভীর</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>শক্তির মাত্রা: {newCharacter.personality?.energy}%</Label>
-                  <Slider
-                    value={[newCharacter.personality?.energy || 50]}
-                    onValueChange={([value]) =>
-                      setNewCharacter((prev) => ({
-                        ...prev,
-                        personality: { ...prev.personality!, energy: value },
-                      }))
-                    }
-                    min={0}
-                    max={100}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label>বন্ধুত্বের মাত্রা: {newCharacter.personality?.friendliness}%</Label>
-                  <Slider
-                    value={[newCharacter.personality?.friendliness || 50]}
-                    onValueChange={([value]) =>
-                      setNewCharacter((prev) => ({
-                        ...prev,
-                        personality: { ...prev.personality!, friendliness: value },
-                      }))
-                    }
-                    min={0}
-                    max={100}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-              </TabsContent>
+                    </div>
+                    <div>
+                      <Label>লিঙ্গ *</Label>
+                      <Select
+                        value={newCharacter.gender}
+                        onValueChange={(value) => setNewCharacter({ ...newCharacter, gender: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male">পুরুষ</SelectItem>
+                          <SelectItem value="female">মহিলা</SelectItem>
+                          <SelectItem value="other">অন্যান্য</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </TabsContent>
 
-              <TabsContent value="details" className="space-y-4">
-                <div>
-                  <Label>পোশাকের স্টাইল</Label>
-                  <Select
-                    value={newCharacter.clothing?.style}
-                    onValueChange={(value) =>
-                      setNewCharacter((prev) => ({
-                        ...prev,
-                        clothing: { ...prev.clothing!, style: value },
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clothingStyles.map((style) => (
-                        <SelectItem key={style} value={style}>
-                          {style}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>আনুষাঙ্গিক</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {accessories.map((accessory) => (
-                      <div key={accessory} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={accessory}
-                          checked={newCharacter.clothing?.accessories.includes(accessory)}
-                          onCheckedChange={() => toggleAccessory(accessory)}
-                        />
-                        <Label htmlFor={accessory} className="text-sm">
-                          {accessory}
-                        </Label>
+                  {/* Appearance */}
+                  <TabsContent value="appearance" className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>উচ্চতা</Label>
+                        <Select
+                          value={newCharacter.appearance?.height}
+                          onValueChange={(value) =>
+                            setNewCharacter({
+                              ...newCharacter,
+                              appearance: { ...newCharacter.appearance!, height: value },
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="নির্বাচন করুন" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="short">খাটো</SelectItem>
+                            <SelectItem value="average">মাঝারি</SelectItem>
+                            <SelectItem value="tall">লম্বা</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="occupation">পেশা</Label>
-                  <Input
-                    id="occupation"
-                    value={newCharacter.background?.occupation}
-                    onChange={(e) =>
-                      setNewCharacter((prev) => ({
-                        ...prev,
-                        background: { ...prev.background!, occupation: e.target.value },
-                      }))
-                    }
-                    placeholder="পেশা লিখুন"
-                  />
-                </div>
-                <div>
-                  <Label>শখ</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {hobbies.map((hobby) => (
-                      <div key={hobby} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={hobby}
-                          checked={newCharacter.background?.hobbies.includes(hobby)}
-                          onCheckedChange={() => toggleHobby(hobby)}
-                        />
-                        <Label htmlFor={hobby} className="text-sm">
-                          {hobby}
-                        </Label>
+                      <div>
+                        <Label>গঠন</Label>
+                        <Select
+                          value={newCharacter.appearance?.build}
+                          onValueChange={(value) =>
+                            setNewCharacter({
+                              ...newCharacter,
+                              appearance: { ...newCharacter.appearance!, build: value },
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="নির্বাচন করুন" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="slim">চিকন</SelectItem>
+                            <SelectItem value="average">মাঝারি</SelectItem>
+                            <SelectItem value="athletic">ক্রীড়াবিদ</SelectItem>
+                            <SelectItem value="heavy">ভারী</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="backstory">পটভূমির গল্প</Label>
-                  <Textarea
-                    id="backstory"
-                    value={newCharacter.background?.backstory}
-                    onChange={(e) =>
-                      setNewCharacter((prev) => ({
-                        ...prev,
-                        background: { ...prev.background!, backstory: e.target.value },
-                      }))
-                    }
-                    placeholder="ক্যারেক্টারের পটভূমির গল্প লিখুন"
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+                    </div>
+                    <div>
+                      <Label>চুলের রঙ</Label>
+                      <Input
+                        value={newCharacter.appearance?.hairColor}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            appearance: { ...newCharacter.appearance!, hairColor: e.target.value },
+                          })
+                        }
+                        placeholder="যেমন: কালো, বাদামী"
+                      />
+                    </div>
+                    <div>
+                      <Label>চুলের ধরন</Label>
+                      <Input
+                        value={newCharacter.appearance?.hairStyle}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            appearance: { ...newCharacter.appearance!, hairStyle: e.target.value },
+                          })
+                        }
+                        placeholder="যেমন: ছোট, লম্বা, কোঁকড়া"
+                      />
+                    </div>
+                    <div>
+                      <Label>চোখের রঙ</Label>
+                      <Input
+                        value={newCharacter.appearance?.eyeColor}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            appearance: { ...newCharacter.appearance!, eyeColor: e.target.value },
+                          })
+                        }
+                        placeholder="যেমন: কালো, বাদামী, নীল"
+                      />
+                    </div>
+                  </TabsContent>
 
-            <div className="flex justify-end gap-2 mt-6">
-              <Button variant="outline" onClick={() => setShowCreateForm(false)}>
-                বাতিল
-              </Button>
-              <Button onClick={createCharacter}>ক্যারেক্টার তৈরি করুন</Button>
-            </div>
-          </CardContent>
+                  {/* Personality */}
+                  <TabsContent value="personality" className="space-y-4">
+                    <div>
+                      <Label>ব্যক্তিত্বের বৈশিষ্ট্য</Label>
+                      <Textarea
+                        placeholder="যেমন: বন্ধুত্বপূর্ণ, বুদ্ধিমান, সাহসী (কমা দিয়ে আলাদা করুন)"
+                        value={newCharacter.personality?.traits?.join(", ")}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            personality: {
+                              ...newCharacter.personality!,
+                              traits: e.target.value
+                                .split(",")
+                                .map((t) => t.trim())
+                                .filter(Boolean),
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>পছন্দ</Label>
+                      <Textarea
+                        placeholder="যেমন: বই পড়া, সঙ্গীত, ভ্রমণ"
+                        value={newCharacter.personality?.likes?.join(", ")}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            personality: {
+                              ...newCharacter.personality!,
+                              likes: e.target.value
+                                .split(",")
+                                .map((t) => t.trim())
+                                .filter(Boolean),
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>অপছন্দ</Label>
+                      <Textarea
+                        placeholder="যেমন: মিথ্যা, অন্যায়, অসততা"
+                        value={newCharacter.personality?.dislikes?.join(", ")}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            personality: {
+                              ...newCharacter.personality!,
+                              dislikes: e.target.value
+                                .split(",")
+                                .map((t) => t.trim())
+                                .filter(Boolean),
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>লক্ষ্য</Label>
+                      <Textarea
+                        placeholder="যেমন: সফল হওয়া, পরিবারকে সাহায্য করা"
+                        value={newCharacter.personality?.goals?.join(", ")}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            personality: {
+                              ...newCharacter.personality!,
+                              goals: e.target.value
+                                .split(",")
+                                .map((t) => t.trim())
+                                .filter(Boolean),
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                  </TabsContent>
+
+                  {/* Background */}
+                  <TabsContent value="background" className="space-y-4">
+                    <div>
+                      <Label>পেশা</Label>
+                      <Input
+                        value={newCharacter.background?.occupation}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            background: { ...newCharacter.background!, occupation: e.target.value },
+                          })
+                        }
+                        placeholder="যেমন: শিক্ষক, ডাক্তার, প্রকৌশলী"
+                      />
+                    </div>
+                    <div>
+                      <Label>উৎস/জন্মস্থান</Label>
+                      <Input
+                        value={newCharacter.background?.origin}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            background: { ...newCharacter.background!, origin: e.target.value },
+                          })
+                        }
+                        placeholder="যেমন: ঢাকা, চট্টগ্রাম"
+                      />
+                    </div>
+                    <div>
+                      <Label>শিক্ষা</Label>
+                      <Input
+                        value={newCharacter.background?.education}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            background: { ...newCharacter.background!, education: e.target.value },
+                          })
+                        }
+                        placeholder="যেমন: স্নাতক, মাস্টার্স"
+                      />
+                    </div>
+                    <div>
+                      <Label>পরিবার</Label>
+                      <Input
+                        value={newCharacter.background?.family}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            background: { ...newCharacter.background!, family: e.target.value },
+                          })
+                        }
+                        placeholder="যেমন: বাবা-মা, ভাই-বোন"
+                      />
+                    </div>
+                    <div>
+                      <Label>পটভূমি গল্প</Label>
+                      <Textarea
+                        rows={4}
+                        value={newCharacter.background?.backstory}
+                        onChange={(e) =>
+                          setNewCharacter({
+                            ...newCharacter,
+                            background: { ...newCharacter.background!, backstory: e.target.value },
+                          })
+                        }
+                        placeholder="চরিত্রের অতীত এবং অভিজ্ঞতা বর্ণনা করুন..."
+                      />
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                <div className="flex justify-end gap-2 mt-6">
+                  <Button variant="outline" onClick={() => setIsCreating(false)}>
+                    বাতিল
+                  </Button>
+                  <Button onClick={handleCreateCharacter}>চরিত্র তৈরি করুন</Button>
+                </div>
+              </CardContent>
+            </>
+          ) : selectedCharacter ? (
+            <>
+              <CardHeader>
+                <CardTitle>{selectedCharacter.name}</CardTitle>
+                <CardDescription>
+                  {selectedCharacter.age} বছর •{" "}
+                  {selectedCharacter.gender === "male"
+                    ? "পুরুষ"
+                    : selectedCharacter.gender === "female"
+                      ? "মহিলা"
+                      : "অন্যান্য"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Appearance */}
+                <div>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    চেহারা
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>উচ্চতা: {selectedCharacter.appearance.height || "N/A"}</div>
+                    <div>গঠন: {selectedCharacter.appearance.build || "N/A"}</div>
+                    <div>চুলের রঙ: {selectedCharacter.appearance.hairColor || "N/A"}</div>
+                    <div>চোখের রঙ: {selectedCharacter.appearance.eyeColor || "N/A"}</div>
+                  </div>
+                </div>
+
+                {/* Personality */}
+                <div>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    ব্যক্তিত্ব
+                  </h3>
+                  {selectedCharacter.personality.traits && selectedCharacter.personality.traits.length > 0 && (
+                    <div className="mb-2">
+                      <p className="text-sm font-medium mb-1">বৈশিষ্ট্য:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedCharacter.personality.traits.map((trait, i) => (
+                          <Badge key={i} variant="secondary">
+                            {trait}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {selectedCharacter.personality.likes && selectedCharacter.personality.likes.length > 0 && (
+                    <div className="mb-2">
+                      <p className="text-sm font-medium mb-1">পছন্দ:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedCharacter.personality.likes.map((like, i) => (
+                          <Badge key={i} variant="outline">
+                            {like}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Background */}
+                <div>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    পটভূমি
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    {selectedCharacter.background.occupation && (
+                      <div>
+                        <span className="font-medium">পেশা:</span> {selectedCharacter.background.occupation}
+                      </div>
+                    )}
+                    {selectedCharacter.background.origin && (
+                      <div>
+                        <span className="font-medium">উৎস:</span> {selectedCharacter.background.origin}
+                      </div>
+                    )}
+                    {selectedCharacter.background.backstory && (
+                      <div>
+                        <span className="font-medium">গল্প:</span>
+                        <p className="mt-1 text-muted-foreground">{selectedCharacter.background.backstory}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </>
+          ) : (
+            <CardContent className="flex items-center justify-center h-96">
+              <div className="text-center text-muted-foreground">
+                <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>একটি চরিত্র নির্বাচন করুন বা নতুন তৈরি করুন</p>
+              </div>
+            </CardContent>
+          )}
         </Card>
-      )}
+      </div>
     </div>
   )
 }
