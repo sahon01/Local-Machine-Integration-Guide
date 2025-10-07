@@ -1,238 +1,193 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import {
+  LayoutDashboard,
   Brain,
-  Database,
+  Bot,
   Server,
+  Database,
+  MessageSquare,
   Settings,
-  Users,
-  Globe,
-  Code,
-  Terminal,
-  ChevronLeft,
-  ChevronRight,
+  Book,
   Home,
-  BarChart3,
   Webhook,
   FileText,
-  HelpCircle,
+  Lightbulb,
+  Music,
+  CheckSquare,
+  User,
+  Calendar,
+  Package,
+  Send,
+  BookOpen,
+  Wrench,
+  Terminal,
+  Code,
+  Plug,
+  Users,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  Globe,
+  Languages,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useLanguage } from "@/lib/language-context"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu"
 
-const navigation = [
+const menuItems = [
   {
-    name: "Dashboard",
-    nameKey: "dashboard",
-    href: "/admin",
-    icon: Home,
+    title: "Main",
+    items: [
+      { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+      { name: "Public Site", href: "/", icon: Home },
+    ],
   },
   {
-    name: "Models",
-    nameKey: "models",
-    href: "/admin/models",
-    icon: Brain,
-    badge: "5",
+    title: "AI Management",
+    items: [
+      { name: "Models", href: "/admin/models", icon: Brain },
+      { name: "Agents", href: "/admin/agents", icon: Bot },
+      { name: "Servers", href: "/server/whm-domains", icon: Server },
+      { name: "Providers", href: "/admin/providers", icon: Plug },
+    ],
   },
   {
-    name: "Database",
-    nameKey: "database",
-    href: "/admin/database",
-    icon: Database,
+    title: "Tools",
+    items: [
+      { name: "Database", href: "/database", icon: Database },
+      { name: "AI Chat", href: "/ai-chat", icon: MessageSquare },
+      { name: "Prompts", href: "/admin/prompts", icon: Code },
+      { name: "Commands", href: "/admin/commands", icon: Terminal },
+      { name: "Webhooks", href: "/webhooks", icon: Webhook },
+    ],
   },
   {
-    name: "Server",
-    nameKey: "server",
-    href: "/admin/server",
-    icon: Server,
+    title: "Productivity",
+    items: [
+      { name: "Notepad", href: "/admin/productivity/notepad", icon: FileText },
+      { name: "Scheduler", href: "/admin/productivity/scheduler", icon: Calendar },
+      { name: "Projects", href: "/admin/productivity/projects", icon: Package },
+      { name: "Delivery", href: "/admin/productivity/delivery", icon: Send },
+      { name: "Todo List", href: "/admin/productivity/todo", icon: CheckSquare },
+      { name: "Character", href: "/admin/productivity/character", icon: User },
+      { name: "Text Correction", href: "/admin/productivity/correction", icon: Wrench },
+      { name: "Music Player", href: "/admin/productivity/music", icon: Music },
+    ],
   },
   {
-    name: "Analytics",
-    nameKey: "analytics",
-    href: "/admin/analytics",
-    icon: BarChart3,
+    title: "System",
+    items: [
+      { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+      { name: "Users", href: "/admin/users", icon: Users },
+      { name: "WHMCS", href: "/admin/whmcs", icon: Globe },
+      { name: "Settings", href: "/admin/settings", icon: Settings },
+    ],
   },
   {
-    name: "Webhooks",
-    nameKey: "webhooks",
-    href: "/admin/webhooks",
-    icon: Webhook,
-  },
-  {
-    name: "Users",
-    nameKey: "users",
-    href: "/admin/users",
-    icon: Users,
-  },
-  {
-    name: "Settings",
-    nameKey: "settings",
-    href: "/admin/settings",
-    icon: Settings,
-  },
-]
-
-const publicLinks = [
-  {
-    name: "Public Dashboard",
-    nameKey: "publicDashboard",
-    href: "/",
-    icon: Globe,
-  },
-  {
-    name: "AI Chat",
-    nameKey: "aiChat",
-    href: "/ai-chat",
-    icon: Code,
-  },
-  {
-    name: "Documentation",
-    nameKey: "documentation",
-    href: "/documentation",
-    icon: FileText,
-  },
-  {
-    name: "Setup Guide",
-    nameKey: "setupGuide",
-    href: "/setup",
-    icon: Terminal,
-  },
-  {
-    name: "Troubleshooting",
-    nameKey: "troubleshooting",
-    href: "/troubleshooting",
-    icon: HelpCircle,
+    title: "Documentation",
+    items: [
+      { name: "Docs", href: "/documentation", icon: Book },
+      { name: "Installation", href: "/installation", icon: BookOpen },
+      { name: "Setup Guide", href: "/setup", icon: Settings },
+      { name: "Troubleshooting", href: "/troubleshooting", icon: Lightbulb },
+    ],
   },
 ]
 
 export function AdminSidebar() {
-  const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
-  const { t, language, setLanguage } = useLanguage()
+  const [collapsed, setCollapsed] = useState(false)
+  const [language, setLanguage] = useState<"en" | "bn">("en")
 
   return (
     <div
       className={cn(
-        "bg-white border-r border-slate-200 flex flex-col transition-all duration-300 h-screen",
+        "flex h-full flex-col gap-2 border-r bg-background transition-all duration-300",
         collapsed ? "w-16" : "w-64",
       )}
     >
       {/* Header */}
-      <div className="p-4 border-b border-slate-200">
+      <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           {!collapsed && (
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Admin Panel</h2>
-              <p className="text-sm text-slate-600">AI Management</p>
+              <h2 className="text-lg font-bold">ZombieCoder AI</h2>
+              <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
           )}
-          <Button variant="ghost" size="sm" onClick={() => setCollapsed(!collapsed)} className="h-8 w-8 p-0">
+          <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 overflow-y-auto">
-        <nav className="p-4 space-y-2">
-          <div className="space-y-1">
-            {!collapsed && (
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Administration</p>
-            )}
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant={isActive ? "default" : "ghost"}
-                    className={cn(
-                      "w-full justify-start",
-                      collapsed ? "px-2" : "px-3",
-                      isActive && "bg-blue-600 text-white hover:bg-blue-700",
-                    )}
-                  >
-                    <item.icon className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
-                    {!collapsed && (
-                      <>
-                        <span>{item.name}</span>
-                        {item.badge && (
-                          <Badge variant="secondary" className="ml-auto">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </>
-                    )}
-                  </Button>
-                </Link>
-              )
-            })}
-          </div>
+      <nav className="flex-1 space-y-6 overflow-y-auto p-4">
+        {menuItems.map((section) => (
+          <div key={section.title}>
+            {!collapsed && <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground">{section.title}</h3>}
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
 
-          <Separator className="my-4" />
-
-          <div className="space-y-1">
-            {!collapsed && (
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Public Access</p>
-            )}
-            {publicLinks.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "w-full justify-start text-slate-600 hover:text-slate-900",
-                    collapsed ? "px-2" : "px-3",
-                  )}
-                >
-                  <item.icon className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
-                  {!collapsed && <span>{item.name}</span>}
-                </Button>
-              </Link>
-            ))}
-          </div>
-        </nav>
-      </div>
-
-      {/* Language Selector */}
-      {!collapsed && (
-        <div className="p-4 border-t border-slate-200">
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Language</p>
-            <div className="flex gap-2">
-              <Button
-                variant={language === "en" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setLanguage("en")}
-                className="flex-1"
-              >
-                English
-              </Button>
-              <Button
-                variant={language === "bn" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setLanguage("bn")}
-                className="flex-1"
-              >
-                বাংলা
-              </Button>
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <Button
+                      variant={isActive ? "default" : "ghost"}
+                      className={cn("w-full justify-start", collapsed && "justify-center px-2")}
+                      title={collapsed ? item.name : undefined}
+                    >
+                      <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
+                      {!collapsed && item.name}
+                    </Button>
+                  </Link>
+                )
+              })}
             </div>
           </div>
+        ))}
+      </nav>
+
+      {/* Language Toggle */}
+      {!collapsed && (
+        <div className="p-4 border-t">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Languages className="h-4 w-4 mr-3" />
+                {language === "en" ? "English" : "বাংলা"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Language</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setLanguage("en")}>{language === "en" && "✓ "}English</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLanguage("bn")}>{language === "bn" && "✓ "}বাংলা</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
 
       {/* Status Indicator */}
-      <div className="p-4 border-t border-slate-200">
+      <div className={cn("p-4 border-t", collapsed && "flex justify-center")}>
         <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}>
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           {!collapsed && (
             <div>
-              <p className="text-xs font-medium text-slate-900">System Status</p>
-              <p className="text-xs text-slate-600">All Systems Operational</p>
+              <p className="text-xs font-medium">System Status</p>
+              <p className="text-xs text-muted-foreground">All Systems Operational</p>
             </div>
           )}
         </div>

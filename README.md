@@ -1,189 +1,255 @@
-# AI Management Dashboard
+# 🧠 ZombieCoder AI Infrastructure Panel
 
-A comprehensive AI model management and development toolkit with multi-language support (English and Bengali).
+**Version:** 2.0.0  
+**Language:** English  
+**Platform:** Windows 10/11, Windows Server 2019/2022
 
-## Features
+---
 
-- 🤖 **AI Model Management** - Monitor and control local AI models
-- 💬 **Multi-Language Support** - English and Bengali (বাংলা) interface
-- 🎛️ **Admin Panel** - Complete administrative interface with sidebar navigation
-- 🔧 **Server Management** - WHM domains, SSH tools, server access
-- 💾 **Database Tools** - MySQL management, analysis, and backup
-- 🎵 **ElevenLabs Integration** - Voice processing and webhooks
-- 📝 **Command Library** - PHP, Node.js, Python, Linux, and Ollama commands
-- ⚡ **Development Tools** - Git and Docker command interfaces
-- 📊 **Real-time Monitoring** - Performance metrics and system health
+## Overview
+
+ZombieCoder AI Infrastructure Panel is a **unified control center** for managing all AI servers, agents, models, and services from a single dynamic admin interface.
+
+### Key Features
+
+✅ **Dynamic Server Management** - Add/remove servers without code changes  
+✅ **AI Model Control** - Manage models across multiple providers  
+✅ **Agent Orchestration** - Configure and monitor AI agents  
+✅ **Real-time Monitoring** - Live health checks and performance metrics  
+✅ **Provider Integration** - OpenAI, Ollama, Anthropic, and custom providers  
+✅ **Productivity Tools** - Integrated development workflow tools  
+✅ **WHMCS Integration** - Client management and billing  
+✅ **Command Line Tools** - Execute system commands from UI  
+✅ **Prompt Management** - Template library for AI interactions
+
+---
 
 ## System Requirements
 
-- **RAM:** 16GB minimum
-- **Disk Space:** 100GB free space
-- **Node.js:** 18+ 
-- **OS:** Windows 10/11, macOS, or Linux
+### Operating System
+- Windows 10 (Version 1809+)
+- Windows 11
+- Windows Server 2019/2022
 
-## Quick Installation (Windows)
+### Software Requirements
+- **Node.js**: 18.x or 20.x LTS
+- **Python**: 3.10 or 3.11
+- **MySQL**: 8.0+
+- **Git**: Latest version
 
-### Option 1: Batch Script
-1. Download or clone this repository
-2. Double-click `install-windows.bat`
-3. Follow the on-screen instructions
+### Hardware (Minimum)
+- CPU: Intel Core i5 / AMD Ryzen 5 (4 cores)
+- RAM: 8 GB
+- Storage: 50 GB SSD
+- Network: 100 Mbps
 
-### Option 2: PowerShell Script
-1. Open PowerShell as Administrator
-2. Run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-3. Navigate to project directory
-4. Run: `.\install-windows.ps1`
+### Hardware (Recommended)
+- CPU: Intel Core i7/i9 / AMD Ryzen 7/9 (8+ cores)
+- RAM: 16 GB+
+- Storage: 256 GB NVMe SSD
+- Network: 1 Gbps
 
-### Option 3: Manual Installation
+---
+
+## Quick Start
+
+### 1. Install Dependencies
+
 \`\`\`bash
+# Node.js (v18 or v20)
+https://nodejs.org/
+
+# Python (3.10 or 3.11)
+https://www.python.org/downloads/
+
+# MySQL (8.0+)
+https://dev.mysql.com/downloads/installer/
+# or XAMPP
+https://www.apachefriends.org/
+\`\`\`
+
+### 2. Setup Database
+
+\`\`\`bash
+# Create database
+mysql -u root -p
+CREATE DATABASE zombiecoder_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# Import schema
+SOURCE backend-setup/database/schema.sql;
+
+# Import initial data
+SOURCE backend-setup/database/initial_data.sql;
+\`\`\`
+
+### 3. Configure Backend
+
+\`\`\`bash
+# Create backend directory
+cd backend-gateway
+
+# Create virtual environment
+python -m venv venv
+
+# Activate (PowerShell)
+.\venv\Scripts\Activate.ps1
+
 # Install dependencies
+pip install fastapi uvicorn sqlalchemy mysql-connector-python python-dotenv httpx websockets
+
+# Configure .env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=zombiecoder_admin
+\`\`\`
+
+### 4. Start Services
+
+\`\`\`bash
+# Terminal 1: Backend API
+cd backend-gateway
+.\venv\Scripts\activate
+uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+
+# Terminal 2: Frontend
 npm install
-
-# Create environment file
-cp .env.example .env.local
-
-# Build the project
-npm run build
-
-# Start development server
 npm run dev
 \`\`\`
 
-## Environment Configuration
+### 5. Access Application
 
-Create a `.env.local` file with these variables:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000/docs
+- **Health Check**: http://localhost:5000/api/admin/health/all
 
-\`\`\`env
-# AI Management Dashboard Environment Variables
-NEXT_PUBLIC_API_URL=http://localhost:3307
-DATABASE_HOST=127.0.0.1
-DATABASE_PORT=3307
-DATABASE_USER=root
-DATABASE_PASSWORD=105585
-DATABASE_NAME=modelsraver1
-ELEVENLABS_API_KEY=your_api_key_here
+---
+
+## Documentation
+
+📘 **Comprehensive Documentation**: See [COMPREHENSIVE_DOCUMENTATION.md](./COMPREHENSIVE_DOCUMENTATION.md)
+
+### Quick Links
+
+- [Installation Guide](./COMPREHENSIVE_DOCUMENTATION.md#installation-guide)
+- [Feature Pages](./COMPREHENSIVE_DOCUMENTATION.md#feature-pages-documentation)
+- [Configuration](./COMPREHENSIVE_DOCUMENTATION.md#configuration-systems)
+- [Service Integration](./COMPREHENSIVE_DOCUMENTATION.md#service-integration-guide)
+- [Testing](./COMPREHENSIVE_DOCUMENTATION.md#testing-procedures)
+- [Troubleshooting](./COMPREHENSIVE_DOCUMENTATION.md#troubleshooting)
+- [API Reference](./COMPREHENSIVE_DOCUMENTATION.md#api-reference)
+
+---
+
+## Features
+
+### Core Pages
+
+| Page | Route | Description |
+|------|-------|-------------|
+| Dashboard | `/admin` | System overview and metrics |
+| Models | `/admin/models` | AI model management |
+| Agents | `/admin/agents` | Agent configuration |
+| Servers | `/admin/servers` | Server management |
+| Providers | `/admin/providers` | AI provider setup |
+| Database | `/database` | Database tools |
+| Prompts | `/admin/prompts` | Prompt templates |
+| Commands | `/admin/commands` | CLI tools |
+| Chat | `/ai-chat` | AI chat interface |
+| Webhooks | `/webhooks` | Webhook management |
+| WHMCS | `/admin/whmcs` | Client management |
+| Analytics | `/admin/analytics` | Usage analytics |
+| Users | `/admin/users` | User management |
+
+### Productivity Tools
+
+- **Notepad** - Multi-tab code editor
+- **Scheduler** - Project timeline management
+- **Projects** - Project management
+- **Delivery** - Client delivery tracking
+- **Todo List** - Daily task management
+- **Character** - Custom character creator
+- **Text Correction** - Grammar and spell check
+- **Music Player** - MP3 playlist
+
+---
+
+## Architecture
+
+\`\`\`
+┌─────────────────────────────────────────┐
+│  Frontend (Port 3000)                   │
+│  Next.js 14 + TypeScript + Tailwind     │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────┐
+│  Backend Gateway (Port 5000)            │
+│  FastAPI + SQLAlchemy + MySQL           │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────┐
+│  AI Server Network                      │
+│  11 Servers + 12 Agents                 │
+└─────────────────────────────────────────┘
 \`\`\`
 
-## Usage
+---
 
-### Public Interface
-- **Main Dashboard:** http://localhost:3000
-- **Documentation:** http://localhost:3000/documentation
-- **Setup Guide:** http://localhost:3000/setup
+## Configuration
 
-### Admin Panel
-- **Admin Dashboard:** http://localhost:3000/admin
-- **Model Management:** http://localhost:3000/admin/models
-- **Database Tools:** http://localhost:3000/admin/database
-- **Server Management:** http://localhost:3000/admin/server
-
-## Language Support
-
-The dashboard supports both English and Bengali:
-
-- **English Interface:** Default language
-- **Bengali Interface:** বাংলা ইন্টারফেস সাপোর্ট
-
-Switch languages using the language selector in the admin sidebar.
-
-## Available Scripts
+### Environment Variables
 
 \`\`\`bash
-# Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run linting
+# .env.local (Frontend)
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_APP_NAME=ZombieCoder AI
+NEXT_PUBLIC_DEFAULT_LANGUAGE=en
 
-# Windows Installation
-install-windows.bat  # Batch script installation
-install-windows.ps1  # PowerShell script installation
+# .env (Backend)
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=zombiecoder_admin
+GATEWAY_PORT=5000
 \`\`\`
 
-## Project Structure
-
-\`\`\`
-├── app/
-│   ├── admin/              # Admin panel pages
-│   ├── (public pages)/     # Public interface pages
-│   └── layout.tsx          # Root layout
-├── components/
-│   ├── ui/                 # shadcn/ui components
-│   ├── admin-sidebar.tsx   # Admin navigation
-│   └── (other components)
-├── lib/
-│   ├── i18n.ts            # Language translations
-│   └── language-context.tsx # Language provider
-├── install-windows.bat     # Windows batch installer
-├── install-windows.ps1     # Windows PowerShell installer
-└── README.md
-\`\`\`
-
-## Features by Section
-
-### AI Tools
-- **AI Chat:** Multi-model chat interface
-- **Prompt Generator:** Create optimized prompts
-- **Project Ideas:** AI-generated development suggestions
-
-### Server Management
-- **WHM Domains:** Domain and SSL management
-- **Server Access:** Remote server controls
-- **SSH Tools:** Secure shell utilities
-
-### Database Management
-- **Database Tools:** MySQL management interface
-- **Database Analysis:** Performance and analytics
-- **Connection Management:** Database connectivity tools
-- **cPanel Integration:** Web hosting panel access
-
-### Command Libraries
-- **PHP Commands:** Web development commands
-- **Node.js Commands:** JavaScript runtime commands
-- **Python Commands:** Python development tools
-- **Linux Commands:** System administration
-- **Ollama Commands:** Local AI model management
-
-### Development Tools
-- **Git Commands:** Version control interface
-- **Docker Commands:** Container management
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Port 3307 already in use:**
-   \`\`\`bash
-   netstat -ano | findstr :3307
-   taskkill /PID <PID> /F
-   \`\`\`
-
-2. **Node.js not found:**
-   - Install Node.js from https://nodejs.org/
-   - Restart your terminal/command prompt
-
-3. **Permission errors (Windows):**
-   - Run PowerShell as Administrator
-   - Enable script execution: `Set-ExecutionPolicy RemoteSigned`
-
-4. **Database connection failed:**
-   - Check your `.env.local` configuration
-   - Ensure MySQL server is running on port 3307
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add translations for new features
-5. Submit a pull request
+---
 
 ## Support
 
-- **Documentation:** http://localhost:3000/documentation
-- **Troubleshooting:** http://localhost:3000/troubleshooting
-- **GitHub Issues:** [Create an issue](https://github.com/your-repo/issues)
+### Documentation
+- Main Docs: `/documentation`
+- API Docs: http://localhost:5000/docs
+
+### Contact
+- Email: infi@zombiecoder.my.id
+- Website: https://zombiecoder.my.id
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Proprietary software developed by ZombieCoder. All rights reserved.
+
+---
+
+## Changelog
+
+### Version 2.0.0 (October 2025)
+- ✨ Complete system redesign
+- ✨ Dynamic loading for all pages
+- ✨ English-first UI with language toggle
+- ✨ Comprehensive documentation
+- ✨ WHMCS integration
+- ✨ Provider management
+- ✨ Enhanced productivity tools
+- ✨ Real-time monitoring
+- ✨ WebSocket support
+
+---
+
+**Last Updated**: October 2025  
+**Author**: ZombieCoder Team
