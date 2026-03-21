@@ -17,10 +17,17 @@ import agentsRoutes from './routes/agents.js';
 import serversRoutes from './routes/servers.js';
 import toolsRoutes from './routes/tools.js';
 import completionsRoutes from './routes/completions.js';
+import ragRoutes from './routes/rag.js';
+import { WebSocketService } from './services/websocket.service.js';
+import http from 'http';
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
+
+// Create HTTP server for WebSocket support
+const server = http.createServer(app);
+let wsService: WebSocketService | null = null;
 
 // Load system identity
 const identityPath = path.join(process.cwd(), 'src/config/identity.json');
@@ -79,6 +86,7 @@ app.use('/api/agents', agentsRoutes);
 app.use('/api/servers', serversRoutes);
 app.use('/api/tools', toolsRoutes);
 app.use('/api/completions', completionsRoutes);
+app.use('/api/rag', ragRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -100,28 +108,19 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`
-╔════════════════════════════════════════╗
-║       ZombieCoder Backend Server       ║
-║          Where Code Speaks             ║
-╚════════════════════════════════════════╝
+// Initialize WebSocket service
+wsService = new WebSocketService(server);
 
-  System: ${systemIdentity.system_identity.name} v${systemIdentity.system_identity.version}
-  Owner: ${systemIdentity.system_identity.branding.owner}
-  
-  Server running on: http://localhost:${PORT}
-  Environment: ${process.env.NODE_ENV || 'development'}
-  Database: ${process.env.DATABASE_PATH || './data/zombiecoder.db'}
-  
-  API Documentation: http://localhost:${PORT}/api/docs
-  Health Check: http://localhost:${PORT}/api/health
-  System Identity: http://localhost:${PORT}/api/system/identity
-  
-  ${new Date().toLocaleTimeString()}
-  `);
+// Start server using HTTP server (for WebSocket support)
+server.listen(PORT, () => {
+  console.log(`[Server] Running on http://localhost:${PORT}`);
+  console.log(`[CORS] Enabled for ${CORS_ORIGIN}`);
+  console.log(`[WebSocket] Enabled at ws://localhost:${PORT}/api/ws`);
+  console.log(`[API Docs] Available at http://localhost:${PORT}/docs`);
 });
+
+// Export wsService for use in routes if needed
+export { wsService };
 
 // Graceful shutdown
 process.on('SIGINT', () => {

@@ -39,6 +39,7 @@
     "axios": "1.13.6",
     "bcryptjs": "3.0.3",
     "better-sqlite3": "12.8.0",
+    "bufferutil": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "latest",
@@ -61,8 +62,10 @@
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "utf-8-validate": "latest",
     "uuid": "13.0.0",
     "vaul": "latest",
+    "ws": "8.19.0",
     "zod": "4.3.6"
   },
   "devDependencies": {
