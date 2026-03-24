@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,61 +18,12 @@ import {
   HardDrive,
 } from "lucide-react"
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-
-interface DashboardStats {
-  active_models: number
-  total_requests: number
-  avg_response_time: number
-  connected_editors: number
-  total_servers: number
-  healthy_servers: number
-  total_agents: number
-  active_agents: number
-  system_health: "healthy" | "degraded" | "down"
-  uptime_percentage: number
-}
+import { useDashboard } from "@/lib/hooks/useDashboard"
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [performanceData, setPerformanceData] = useState<any[]>([])
-  const [activityData, setActivityData] = useState<any[]>([])
+  const { data, loading, error } = useDashboard()
 
-  useEffect(() => {
-    fetchDashboardData()
-
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(fetchDashboardData, 5000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchDashboardData = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/admin/dashboard`)
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data.stats)
-        setPerformanceData(data.performance || getMockPerformanceData())
-        setActivityData(data.activity || getMockActivityData())
-      } else {
-        // Use mock data if API fails
-        setStats(getMockStats())
-        setPerformanceData(getMockPerformanceData())
-        setActivityData(getMockActivityData())
-      }
-      setLoading(false)
-    } catch (error) {
-      console.error("Failed to fetch dashboard data:", error)
-      setStats(getMockStats())
-      setPerformanceData(getMockPerformanceData())
-      setActivityData(getMockActivityData())
-      setLoading(false)
-    }
-  }
-
-  if (loading || !stats) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
@@ -84,6 +34,23 @@ export default function AdminDashboard() {
     )
   }
 
+  if (error || !data) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <p>Failed to load dashboard data</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const stats = data.systemStatus
+  const metrics = data.metrics
+  const recentActivity = data.recentActivity
+  const topProviders = data.topProviders
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -93,8 +60,8 @@ export default function AdminDashboard() {
           <p className="text-muted-foreground">Monitor and manage your entire AI ecosystem</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant={stats.system_health === "healthy" ? "default" : "destructive"}>
-            {stats.system_health === "healthy" ? (
+          <Badge variant={stats.healthy === stats.totalServers ? "default" : "destructive"}>
+            {stats.healthy === stats.totalServers ? (
               <>
                 <CheckCircle className="h-3 w-3 mr-1" />
                 All Systems Operational
@@ -106,7 +73,6 @@ export default function AdminDashboard() {
               </>
             )}
           </Badge>
-          <span className="text-sm text-muted-foreground">Uptime: {stats.uptime_percentage}%</span>
         </div>
       </div>
 
@@ -114,12 +80,23 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Models</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalUsers}</div>
+            <p className="text-xs text-muted-foreground">System users</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
             <Brain className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.active_models}</div>
-            <p className="text-xs text-muted-foreground">Across all providers</p>
+            <div className="text-2xl font-bold">{metrics.activeAgents}</div>
+            <p className="text-xs text-muted-foreground">Running agents</p>
           </CardContent>
         </Card>
 
@@ -129,7 +106,7 @@ export default function AdminDashboard() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total_requests.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{metrics.totalRequests.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">Last 24 hours</p>
           </CardContent>
         </Card>
@@ -140,21 +117,10 @@ export default function AdminDashboard() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.avg_response_time}ms</div>
+            <div className="text-2xl font-bold">{metrics.averageResponseTime}ms</div>
             <p className="text-xs text-muted-foreground">
-              {stats.avg_response_time < 200 ? "Excellent" : stats.avg_response_time < 500 ? "Good" : "Needs attention"}
+              {metrics.averageResponseTime < 200 ? "Excellent" : metrics.averageResponseTime < 500 ? "Good" : "Needs attention"}
             </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Connected Editors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.connected_editors}</div>
-            <p className="text-xs text-muted-foreground">Active connections</p>
           </CardContent>
         </Card>
       </div>
@@ -172,25 +138,25 @@ export default function AdminDashboard() {
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Total Servers</span>
-              <Badge variant="outline">{stats.total_servers}</Badge>
+              <Badge variant="outline">{stats.totalServers}</Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Healthy</span>
-              <Badge className="bg-green-500">{stats.healthy_servers}</Badge>
+              <Badge className="bg-green-500">{stats.healthy}</Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Issues</span>
-              <Badge variant="destructive">{stats.total_servers - stats.healthy_servers}</Badge>
+              <Badge variant="destructive">{stats.totalServers - stats.healthy}</Badge>
             </div>
             <div className="pt-2">
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-green-500 h-2 rounded-full transition-all"
-                  style={{ width: `${(stats.healthy_servers / stats.total_servers) * 100}%` }}
+                  style={{ width: `${(stats.healthy / stats.totalServers) * 100}%` }}
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {((stats.healthy_servers / stats.total_servers) * 100).toFixed(1)}% operational
+                {((stats.healthy / stats.totalServers) * 100).toFixed(1)}% operational
               </p>
             </div>
           </CardContent>
@@ -200,124 +166,88 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Cpu className="h-5 w-5" />
-              Agent Status
+              System Resources
             </CardTitle>
-            <CardDescription>AI agent performance</CardDescription>
+            <CardDescription>CPU and memory usage</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Total Agents</span>
-              <Badge variant="outline">{stats.total_agents}</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Active</span>
-              <Badge className="bg-blue-500">{stats.active_agents}</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Inactive</span>
-              <Badge variant="secondary">{stats.total_agents - stats.active_agents}</Badge>
-            </div>
-            <div className="pt-2">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">CPU Usage</span>
+                <span className="text-sm">{stats.cpuUsage}%</span>
+              </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-blue-500 h-2 rounded-full transition-all"
-                  style={{ width: `${(stats.active_agents / stats.total_agents) * 100}%` }}
+                  style={{ width: `${stats.cpuUsage}%` }}
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {((stats.active_agents / stats.total_agents) * 100).toFixed(1)}% active
-              </p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Memory Usage</span>
+                <span className="text-sm">{stats.memoryUsage}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-purple-500 h-2 rounded-full transition-all"
+                  style={{ width: `${stats.memoryUsage}%` }}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Performance Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Performance Metrics
-          </CardTitle>
-          <CardDescription>Response time over the last 24 hours</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={performanceData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="response_time" stroke="#3b82f6" strokeWidth={2} />
-              <Line type="monotone" dataKey="requests" stroke="#10b981" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Activity Chart */}
+      {/* Recent Activity */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
-            Request Activity
+            Recent Activity
           </CardTitle>
-          <CardDescription>Requests by service</CardDescription>
+          <CardDescription>Latest system events</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={activityData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="service" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="requests" fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="space-y-4">
+            {recentActivity.slice(0, 5).map((activity) => (
+              <div key={activity.id} className="flex items-start gap-4 pb-4 border-b last:border-0">
+                <div className="text-sm">
+                  <p className="font-medium">{activity.type}</p>
+                  <p className="text-muted-foreground">{activity.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{activity.timestamp}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
-      {/* System Resources */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">CPU Usage</CardTitle>
-            <Cpu className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">34%</div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: "34%" }} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
-            <HardDrive className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">62%</div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: "62%" }} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Disk Usage</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45%</div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div className="bg-purple-500 h-2 rounded-full" style={{ width: "45%" }} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Top Providers */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Provider Status
+          </CardTitle>
+          <CardDescription>Provider usage and health</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {topProviders.map((provider) => (
+              <div key={provider.name} className="flex items-center justify-between pb-4 border-b last:border-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{provider.name}</span>
+                  <Badge variant={provider.status === 'active' ? 'default' : 'secondary'}>
+                    {provider.status}
+                  </Badge>
+                </div>
+                <span className="text-sm text-muted-foreground">{provider.requests} requests</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Actions */}
       <Card>
@@ -356,42 +286,4 @@ export default function AdminDashboard() {
       </Card>
     </div>
   )
-}
-
-// Mock data functions
-function getMockStats(): DashboardStats {
-  return {
-    active_models: 8,
-    total_requests: 15432,
-    avg_response_time: 187,
-    connected_editors: 4,
-    total_servers: 11,
-    healthy_servers: 10,
-    total_agents: 12,
-    active_agents: 11,
-    system_health: "healthy",
-    uptime_percentage: 99.8,
-  }
-}
-
-function getMockPerformanceData() {
-  return [
-    { time: "00:00", response_time: 150, requests: 120 },
-    { time: "04:00", response_time: 165, requests: 95 },
-    { time: "08:00", response_time: 210, requests: 280 },
-    { time: "12:00", response_time: 195, requests: 350 },
-    { time: "16:00", response_time: 180, requests: 420 },
-    { time: "20:00", response_time: 170, requests: 310 },
-    { time: "24:00", response_time: 160, requests: 180 },
-  ]
-}
-
-function getMockActivityData() {
-  return [
-    { service: "OpenAI", requests: 4523 },
-    { service: "Ollama", requests: 3210 },
-    { service: "Orchestration", requests: 2845 },
-    { service: "Agents", requests: 1934 },
-    { service: "Custom", requests: 920 },
-  ]
 }

@@ -4,38 +4,78 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Plug, Plus, Settings, CheckCircle, AlertCircle, DollarSign } from "lucide-react"
+import { Plug, Plus, Settings, CheckCircle, AlertCircle, DollarSign, RotateCcw } from "lucide-react"
+import { useProviders } from "@/lib/hooks/useProviders"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ProvidersPage() {
-  const [providers] = useState([
-    {
-      id: 1,
-      name: "OpenAI",
-      status: "active",
-      models: ["gpt-4", "gpt-3.5-turbo", "gpt-4-turbo"],
-      apiBase: "https://api.openai.com/v1",
-      rateLimits: { rpm: 3500, tpm: 90000 },
-      costPer1k: { input: 0.03, output: 0.06 },
-    },
-    {
-      id: 2,
-      name: "Ollama",
-      status: "active",
-      models: ["llama3.2:1b", "codellama", "mistral"],
-      apiBase: "http://localhost:11434",
-      rateLimits: { rpm: 0, tpm: 0 },
-      costPer1k: { input: 0, output: 0 },
-    },
-    {
-      id: 3,
-      name: "Anthropic",
-      status: "inactive",
-      models: ["claude-3-opus", "claude-3-sonnet"],
-      apiBase: "https://api.anthropic.com/v1",
-      rateLimits: { rpm: 2000, tpm: 100000 },
-      costPer1k: { input: 0.015, output: 0.075 },
-    },
-  ])
+  const { providers, loading, error, refetch, testConnection, syncModels } = useProviders()
+  const { toast } = useToast()
+  const [testing, setTesting] = useState<string | null>(null)
+
+  const handleTestConnection = async (id: string, name: string) => {
+    try {
+      setTesting(id)
+      await testConnection(id)
+      toast({
+        title: "Success",
+        description: `${name} connection test passed`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: `Failed to test ${name} connection`,
+        variant: "destructive",
+      })
+    } finally {
+      setTesting(null)
+    }
+  }
+
+  const handleSyncModels = async (id: string, name: string) => {
+    try {
+      setTesting(id)
+      await syncModels(id)
+      refetch()
+      toast({
+        title: "Success",
+        description: `${name} models synced successfully`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: `Failed to sync ${name} models`,
+        variant: "destructive",
+      })
+    } finally {
+      setTesting(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading providers...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-red-800">Failed to load providers: {error}</p>
+          <Button onClick={refetch} className="mt-4">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -99,55 +139,56 @@ export default function ProvidersPage() {
                   ) : (
                     <>
                       <AlertCircle className="h-3 w-3 mr-1" />
-                      Inactive
+                      {provider.status}
                     </>
                   )}
                 </Badge>
               </div>
-              <CardDescription>{provider.apiBase}</CardDescription>
+              <CardDescription>{provider.baseUrl || provider.type}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium mb-2">Available Models ({provider.models.length})</h4>
                 <div className="flex flex-wrap gap-2">
-                  {provider.models.map((model) => (
+                  {provider.models.slice(0, 5).map((model) => (
                     <Badge key={model} variant="outline">
                       {model}
                     </Badge>
                   ))}
+                  {provider.models.length > 5 && (
+                    <Badge variant="outline">+{provider.models.length - 5} more</Badge>
+                  )}
                 </div>
               </div>
 
-              {provider.rateLimits.rpm > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Rate Limits</h4>
-                  <div className="text-sm text-muted-foreground">
-                    <div>Requests per minute: {provider.rateLimits.rpm.toLocaleString()}</div>
-                    <div>Tokens per minute: {provider.rateLimits.tpm.toLocaleString()}</div>
-                  </div>
-                </div>
-              )}
+              <div className="text-sm text-muted-foreground">
+                <div>Type: {provider.type}</div>
+                <div>Requests: {provider.requestCount}</div>
+                {provider.lastChecked && <div>Last Checked: {new Date(provider.lastChecked).toLocaleString()}</div>}
+              </div>
 
-              {provider.costPer1k.input > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-                    <DollarSign className="h-4 w-4" />
-                    Cost per 1K tokens
-                  </h4>
-                  <div className="text-sm text-muted-foreground">
-                    <div>Input: ${provider.costPer1k.input}</div>
-                    <div>Output: ${provider.costPer1k.output}</div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-2 pt-2">
-                <Button size="sm" variant="outline">
-                  <Settings className="h-3 w-3 mr-1" />
-                  Configure
-                </Button>
-                <Button size="sm" variant="outline">
+              <div className="flex gap-2 pt-2 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleTestConnection(provider.id, provider.name)}
+                  disabled={testing === provider.id}
+                >
+                  {testing === provider.id ? (
+                    <RotateCcw className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                  )}
                   Test Connection
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSyncModels(provider.id, provider.name)}
+                  disabled={testing === provider.id}
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Sync Models
                 </Button>
               </div>
             </CardContent>
