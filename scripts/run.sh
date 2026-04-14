@@ -1,223 +1,175 @@
 #!/bin/bash
 
-################################################################################
-# Run Script for ZombieCoder
-# Starts both frontend and backend servers with proper environment
-################################################################################
+# ZombieCoder System Runner
+# Starts both frontend (Next.js) and backend (Python/FastAPI)
+# Usage: bash scripts/run.sh
 
 set -e
 
-# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[✓]${NC} $1"; }
-log_error() { echo -e "${RED}[✗]${NC} $1"; }
-log_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
-
-# Get project root
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-# Configuration
-FRONTEND_PORT="${FRONTEND_PORT:-3000}"
-BACKEND_PORT="${BACKEND_PORT:-5000}"
-MODE="${1:-dev}" # dev, production, or demo
+echo -e "${BLUE}=========================================="
+echo "ZombieCoder System Startup"
+echo "==========================================${NC}"
+echo ""
 
-log_info "ZombieCoder Launcher"
-log_info "Mode: $MODE"
-log_info "Frontend will run on: http://localhost:$FRONTEND_PORT"
-log_info "Backend will run on: http://localhost:$BACKEND_PORT\n"
-
-# ============================================================================
-# Check prerequisites
-# ============================================================================
-log_info "Checking prerequisites..."
-
-if [ ! -d "node_modules" ]; then
-    log_error "node_modules not found. Running setup first..."
-    bash ./scripts/setup.sh
+# Check if .env exists
+if [ ! -f ".env" ]; then
+    echo -e "${RED}Error: .env file not found${NC}"
+    echo "Please run: bash scripts/install.sh"
+    exit 1
 fi
 
-if [ ! -f ".env.local" ]; then
-    log_warning ".env.local not found. Creating default..."
-    cat > .env.local << 'EOF'
-NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
-NODE_ENV=development
-DEBUG=true
-EOF
-    log_warning "Created .env.local - please update with your API keys"
-fi
+# Load environment
+export $(cat .env | grep -v '^#' | xargs)
 
-log_success "Prerequisites check passed\n"
-
-# ============================================================================
-# Port availability check
-# ============================================================================
+# Function to check if port is in use
 check_port() {
-    local port=$1
-    local name=$2
-    
-    if netstat -tuln 2>/dev/null | grep -q ":$port "; then
-        log_warning "Port $port ($name) is already in use"
-        return 1
-    else
-        log_success "Port $port ($name) is available"
+    if netstat -tuln 2>/dev/null | grep -q ":$1 "; then
         return 0
+    else
+        return 1
     fi
 }
 
-log_info "Checking port availability..."
-check_port $FRONTEND_PORT "Frontend" || log_warning "Frontend port may already be in use"
-check_port $BACKEND_PORT "Backend" || log_warning "Backend port may already be in use"
-
-# ============================================================================
-# Start servers
-# ============================================================================
-log_info "\nStarting servers...\n"
-
-# Create cleanup function
-cleanup() {
-    log_warning "\nShutting down servers..."
-    kill $(jobs -p) 2>/dev/null || true
-    wait $(jobs -p) 2>/dev/null || true
-    log_success "Servers stopped"
-    exit 0
-}
-
-# Set trap to cleanup on exit
-trap cleanup SIGINT SIGTERM
-
-# Function to wait for server
-wait_for_server() {
-    local port=$1
-    local name=$2
+# Function to wait for service
+wait_for_service() {
+    local host=$1
+    local port=$2
+    local name=$3
     local max_attempts=30
-    local attempt=1
+    local attempt=0
     
-    log_info "Waiting for $name to be ready..."
+    echo -e "${YELLOW}Waiting for $name to start...${NC}"
     
-    while [ $attempt -le $max_attempts ]; do
-        if curl -s http://localhost:$port > /dev/null 2>&1; then
-            log_success "$name is ready at http://localhost:$port"
+    while [ $attempt -lt $max_attempts ]; do
+        if nc -z $host $port 2>/dev/null; then
+            echo -e "${GREEN}$name is running${NC}"
             return 0
         fi
         attempt=$((attempt + 1))
         sleep 1
     done
     
-    log_error "$name did not start in time"
+    echo -e "${RED}$name failed to start${NC}"
     return 1
 }
 
-# ============================================================================
-# Start Frontend
-# ============================================================================
-log_info "Starting Frontend (Next.js)..."
+# Check prerequisites
+echo -e "${YELLOW}Checking prerequisites...${NC}"
 
-case "$MODE" in
-    dev)
-        PORT=$FRONTEND_PORT npm run dev &
-        FRONTEND_PID=$!
-        ;;
-    production)
-        if [ ! -d ".next" ]; then
-            log_info "Building for production..."
-            npm run build
-        fi
-        PORT=$FRONTEND_PORT npm run start &
-        FRONTEND_PID=$!
-        ;;
-    demo)
-        log_info "Starting in demo mode (frontend only)..."
-        PORT=$FRONTEND_PORT npm run dev &
-        FRONTEND_PID=$!
-        ;;
-    *)
-        log_error "Unknown mode: $MODE"
-        exit 1
-        ;;
-esac
-
-sleep 3
-wait_for_server $FRONTEND_PORT "Frontend" || {
-    log_error "Frontend failed to start"
+# Check Node.js
+if ! command -v node &> /dev/null; then
+    echo -e "${RED}Node.js not installed${NC}"
+    echo "Run: bash scripts/install.sh"
     exit 1
-}
+fi
+echo -e "${GREEN}Node.js OK ($(node -v))${NC}"
 
-# ============================================================================
-# Start Backend (if not in demo mode)
-# ============================================================================
-if [ "$MODE" != "demo" ]; then
-    log_info "\nStarting Backend (Python/Node.js)..."
-    
-    # Check if backend exists
-    if [ -f "backend/server.py" ]; then
-        log_info "Starting Python backend..."
-        if [ -d "backend/venv" ]; then
-            source backend/venv/bin/activate
-        fi
-        cd backend
-        PORT=$BACKEND_PORT python3 server.py &
-        BACKEND_PID=$!
-        cd "$PROJECT_ROOT"
-    elif [ -f "backend/index.js" ] || [ -f "backend/server.js" ]; then
-        log_info "Starting Node.js backend..."
-        cd backend
-        PORT=$BACKEND_PORT node index.js 2>/dev/null || PORT=$BACKEND_PORT node server.js &
-        BACKEND_PID=$!
-        cd "$PROJECT_ROOT"
-    else
-        log_warning "No backend found - running frontend only"
+# Check npm
+if ! command -v npm &> /dev/null; then
+    echo -e "${RED}npm not installed${NC}"
+    exit 1
+fi
+echo -e "${GREEN}npm OK ($(npm -v))${NC}"
+
+# Check Python
+if ! command -v python3 &> /dev/null; then
+    echo -e "${RED}Python3 not installed${NC}"
+    exit 1
+fi
+echo -e "${GREEN}Python3 OK ($(python3 --version))${NC}"
+
+# Check PostgreSQL
+echo -e "${YELLOW}Checking database...${NC}"
+if command -v systemctl &> /dev/null; then
+    sudo systemctl start postgresql || true
+else
+    sudo service postgresql start || true
+fi
+sleep 2
+echo -e "${GREEN}PostgreSQL started${NC}"
+
+# Check Redis
+echo -e "${YELLOW}Checking cache...${NC}"
+if command -v systemctl &> /dev/null; then
+    sudo systemctl start redis-server || true
+else
+    sudo service redis-server start || true
+fi
+sleep 2
+echo -e "${GREEN}Redis started${NC}"
+
+echo ""
+echo -e "${YELLOW}Starting services...${NC}"
+echo ""
+
+# Kill existing processes on ports (cleanup)
+cleanup_ports() {
+    # Frontend port
+    if check_port 3000; then
+        echo -e "${YELLOW}Cleaning up port 3000...${NC}"
+        lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+        sleep 1
     fi
     
-    sleep 3
-    wait_for_server $BACKEND_PORT "Backend" || {
-        log_warning "Backend may not have started. Check logs above."
-    }
-fi
-
-# ============================================================================
-# Display running status
-# ============================================================================
-echo -e "\n${GREEN}========================================${NC}"
-echo -e "${GREEN}ZombieCoder is running!${NC}"
-echo -e "${GREEN}========================================${NC}\n"
-
-if [ "$MODE" != "demo" ]; then
-    echo "Frontend:  http://localhost:$FRONTEND_PORT"
-    echo "Backend:   http://localhost:$BACKEND_PORT"
-    echo "API Docs:  http://localhost:$BACKEND_PORT/api/docs (if available)"
-else
-    echo "Frontend:  http://localhost:$FRONTEND_PORT"
-fi
-
-echo -e "\n${YELLOW}Press Ctrl+C to stop all servers${NC}\n"
-
-# ============================================================================
-# Wait for all background processes
-# ============================================================================
-wait_all() {
-    while true; do
+    # Backend port
+    if check_port 5000; then
+        echo -e "${YELLOW}Cleaning up port 5000...${NC}"
+        lsof -ti:5000 | xargs kill -9 2>/dev/null || true
         sleep 1
-        
-        # Check if frontend is still running
-        if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-            log_error "Frontend process died"
-            cleanup
-        fi
-        
-        # Check if backend is still running (if started)
-        if [ ! -z "$BACKEND_PID" ] && ! kill -0 $BACKEND_PID 2>/dev/null; then
-            log_warning "Backend process died"
-        fi
-    done
+    fi
 }
 
-wait_all
+cleanup_ports
+
+# Start backend (if it exists)
+if [ -f "backend/main.py" ]; then
+    echo -e "${BLUE}Starting backend on port 5000...${NC}"
+    cd "$PROJECT_ROOT/backend"
+    python3 -m uvicorn main:app --reload --host 0.0.0.0 --port 5000 &
+    BACKEND_PID=$!
+    cd "$PROJECT_ROOT"
+    wait_for_service localhost 5000 "Backend"
+else
+    echo -e "${YELLOW}No backend/main.py found, skipping backend${NC}"
+fi
+
+# Start frontend
+echo -e "${BLUE}Starting frontend on port 3000...${NC}"
+
+# Build frontend if needed
+if [ ! -d ".next" ]; then
+    echo -e "${YELLOW}Building frontend...${NC}"
+    npm run build
+fi
+
+npm run dev &
+FRONTEND_PID=$!
+
+wait_for_service localhost 3000 "Frontend"
+
+echo ""
+echo -e "${GREEN}=========================================="
+echo "System is Running!"
+echo "==========================================${NC}"
+echo ""
+echo -e "${BLUE}Frontend: http://localhost:3000${NC}"
+echo -e "${BLUE}Backend:  http://localhost:5000${NC}"
+echo -e "${BLUE}API Docs: http://localhost:5000/docs${NC}"
+echo ""
+echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
+echo ""
+
+# Trap Ctrl+C to cleanup
+trap 'echo -e "\n${YELLOW}Shutting down...${NC}"; kill $FRONTEND_PID $BACKEND_PID 2>/dev/null || true; exit 0' INT TERM
+
+# Wait for both processes
+wait
