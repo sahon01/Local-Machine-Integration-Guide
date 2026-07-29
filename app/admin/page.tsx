@@ -2,299 +2,288 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useLanguage } from "@/lib/language-context"
+import { Button } from "@/components/ui/button"
 import {
-  Brain,
-  Database,
-  MessageSquare,
-  Headphones,
-  Server,
   Activity,
-  Users,
+  Brain,
+  Server,
+  Zap,
   TrendingUp,
-  Shield,
+  AlertCircle,
+  CheckCircle,
   Clock,
-  BarChart3,
+  Users,
+  Database,
+  Cpu,
+  HardDrive,
 } from "lucide-react"
-import Link from "next/link"
-import { DailyPerformance } from "@/components/daily-performance"
-import { SystemOverview } from "@/components/system-overview"
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { useDashboard } from "@/lib/hooks/useDashboard"
 
 export default function AdminDashboard() {
-  const { t } = useLanguage()
+  const { data, loading, error } = useDashboard()
 
-  const stats = [
-    {
-      title: "Active Models",
-      value: "5",
-      change: "+2 from last week",
-      icon: Brain,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
-    },
-    {
-      title: "Total Requests",
-      value: "12,847",
-      change: "+18% from last month",
-      icon: BarChart3,
-      color: "text-green-500",
-      bgColor: "bg-green-50",
-    },
-    {
-      title: "Avg Response Time",
-      value: "1.2s",
-      change: "-0.3s improvement",
-      icon: Clock,
-      color: "text-orange-500",
-      bgColor: "bg-orange-50",
-    },
-    {
-      title: "Connected Editors",
-      value: "3",
-      change: "Stable",
-      icon: Users,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50",
-    },
-  ]
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
-  const quickActions = [
-    {
-      title: "AI Chat Interface",
-      description: "Interactive chat with AI models",
-      href: "/ai-chat",
-      icon: MessageSquare,
-      color: "bg-blue-500",
-    },
-    {
-      title: "Database Tools",
-      description: "Manage MySQL database",
-      href: "/database",
-      icon: Database,
-      color: "bg-green-500",
-    },
-    {
-      title: "ElevenLabs Webhooks",
-      description: "Voice processing integration",
-      href: "/webhooks",
-      icon: Headphones,
-      color: "bg-purple-500",
-    },
-    {
-      title: "Server Management",
-      description: "WHM and server tools",
-      href: "/server/whm-domains",
-      icon: Server,
-      color: "bg-orange-500",
-    },
-  ]
+  if (error || !data) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <p>Failed to load dashboard data</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: "model",
-      title: "Mistral model started",
-      time: "2 minutes ago",
-      icon: Brain,
-      status: "success",
-    },
-    {
-      id: 2,
-      type: "request",
-      title: "Code analysis completed",
-      time: "5 minutes ago",
-      icon: Activity,
-      status: "success",
-    },
-    {
-      id: 3,
-      type: "webhook",
-      title: "ElevenLabs webhook received",
-      time: "8 minutes ago",
-      icon: Headphones,
-      status: "success",
-    },
-    {
-      id: 4,
-      type: "database",
-      title: "Database backup completed",
-      time: "12 minutes ago",
-      icon: Database,
-      status: "success",
-    },
-  ]
+  const stats = data.systemStatus
+  const metrics = data.metrics
+  const recentActivity = data.recentActivity
+  const topProviders = data.topProviders
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
-        <p className="text-slate-600">Monitor and manage your AI infrastructure</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => {
-          const IconComponent = stat.icon
-          return (
-            <Card key={stat.title}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-slate-600">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-xs text-slate-500 mt-1">{stat.change}</p>
-                  </div>
-                  <div className={`${stat.bgColor} p-3 rounded-full`}>
-                    <IconComponent className={`h-6 w-6 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Daily Performance */}
-      <DailyPerformance />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Quick Actions */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Access frequently used tools and features</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {quickActions.map((action) => {
-                  const IconComponent = action.icon
-                  return (
-                    <Link key={action.title} href={action.href}>
-                      <div className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className={`${action.color} text-white p-2 rounded-lg`}>
-                            <IconComponent className="h-5 w-5" />
-                          </div>
-                          <h3 className="font-semibold">{action.title}</h3>
-                        </div>
-                        <p className="text-sm text-slate-600">{action.description}</p>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* System Performance */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                System Performance
-              </CardTitle>
-              <CardDescription>Real-time system metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">CPU Usage</span>
-                  <span className="text-sm text-slate-600">45%</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: "45%" }}></div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Memory Usage</span>
-                  <span className="text-sm text-slate-600">6.2GB / 16GB</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: "38%" }}></div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Disk Usage</span>
-                  <span className="text-sm text-slate-600">45GB / 100GB</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
-                  <div className="bg-orange-500 h-2 rounded-full" style={{ width: "45%" }}></div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Activity */}
+      <div className="flex justify-between items-center">
         <div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-              <CardDescription>Latest system events</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivity.map((activity) => {
-                  const IconComponent = activity.icon
-                  return (
-                    <div key={activity.id} className="flex items-center gap-3">
-                      <div className="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center">
-                        <IconComponent className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{activity.title}</div>
-                        <div className="text-xs text-slate-600">{activity.time}</div>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {activity.status}
-                      </Badge>
-                    </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* System Status */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                System Status
-              </CardTitle>
-              <CardDescription>Current system health</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">AI Server</span>
-                  <Badge className="bg-green-100 text-green-800">Running</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Database</span>
-                  <Badge className="bg-green-100 text-green-800">Connected</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Webhooks</span>
-                  <Badge className="bg-green-100 text-green-800">Active</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">SSL Certificate</span>
-                  <Badge className="bg-yellow-100 text-yellow-800">Expires Soon</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <h1 className="text-3xl font-bold">AI Infrastructure Dashboard</h1>
+          <p className="text-muted-foreground">Monitor and manage your entire AI ecosystem</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant={stats.healthy === stats.totalServers ? "default" : "destructive"}>
+            {stats.healthy === stats.totalServers ? (
+              <>
+                <CheckCircle className="h-3 w-3 mr-1" />
+                All Systems Operational
+              </>
+            ) : (
+              <>
+                <AlertCircle className="h-3 w-3 mr-1" />
+                System Issues Detected
+              </>
+            )}
+          </Badge>
         </div>
       </div>
 
-      {/* System Overview */}
-      <SystemOverview />
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalUsers}</div>
+            <p className="text-xs text-muted-foreground">System users</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
+            <Brain className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.activeAgents}</div>
+            <p className="text-xs text-muted-foreground">Running agents</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalRequests.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Last 24 hours</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.averageResponseTime}ms</div>
+            <p className="text-xs text-muted-foreground">
+              {metrics.averageResponseTime < 200 ? "Excellent" : metrics.averageResponseTime < 500 ? "Good" : "Needs attention"}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Server and Agent Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Server className="h-5 w-5" />
+              Server Status
+            </CardTitle>
+            <CardDescription>Infrastructure health overview</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Total Servers</span>
+              <Badge variant="outline">{stats.totalServers}</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Healthy</span>
+              <Badge className="bg-green-500">{stats.healthy}</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Issues</span>
+              <Badge variant="destructive">{stats.totalServers - stats.healthy}</Badge>
+            </div>
+            <div className="pt-2">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-green-500 h-2 rounded-full transition-all"
+                  style={{ width: `${(stats.healthy / stats.totalServers) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {((stats.healthy / stats.totalServers) * 100).toFixed(1)}% operational
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cpu className="h-5 w-5" />
+              System Resources
+            </CardTitle>
+            <CardDescription>CPU and memory usage</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">CPU Usage</span>
+                <span className="text-sm">{stats.cpuUsage}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-500 h-2 rounded-full transition-all"
+                  style={{ width: `${stats.cpuUsage}%` }}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Memory Usage</span>
+                <span className="text-sm">{stats.memoryUsage}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-purple-500 h-2 rounded-full transition-all"
+                  style={{ width: `${stats.memoryUsage}%` }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Recent Activity
+          </CardTitle>
+          <CardDescription>Latest system events</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentActivity.slice(0, 5).map((activity) => (
+              <div key={activity.id} className="flex items-start gap-4 pb-4 border-b last:border-0">
+                <div className="text-sm">
+                  <p className="font-medium">{activity.type}</p>
+                  <p className="text-muted-foreground">{activity.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{activity.timestamp}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Top Providers */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Provider Status
+          </CardTitle>
+          <CardDescription>Provider usage and health</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {topProviders.map((provider) => (
+              <div key={provider.name} className="flex items-center justify-between pb-4 border-b last:border-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{provider.name}</span>
+                  <Badge variant={provider.status === 'active' ? 'default' : 'secondary'}>
+                    {provider.status}
+                  </Badge>
+                </div>
+                <span className="text-sm text-muted-foreground">{provider.requests} requests</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common administrative tasks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button variant="outline" className="h-20 bg-transparent">
+              <div className="flex flex-col items-center gap-2">
+                <Brain className="h-5 w-5" />
+                <span className="text-sm">Add Model</span>
+              </div>
+            </Button>
+            <Button variant="outline" className="h-20 bg-transparent">
+              <div className="flex flex-col items-center gap-2">
+                <Server className="h-5 w-5" />
+                <span className="text-sm">Add Server</span>
+              </div>
+            </Button>
+            <Button variant="outline" className="h-20 bg-transparent">
+              <div className="flex flex-col items-center gap-2">
+                <Cpu className="h-5 w-5" />
+                <span className="text-sm">Add Agent</span>
+              </div>
+            </Button>
+            <Button variant="outline" className="h-20 bg-transparent">
+              <div className="flex flex-col items-center gap-2">
+                <Zap className="h-5 w-5" />
+                <span className="text-sm">Run Test</span>
+              </div>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

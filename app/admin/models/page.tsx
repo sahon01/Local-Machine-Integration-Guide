@@ -1,87 +1,92 @@
+'use client'
+
+import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Brain, Play, Pause, Settings, Download, Search, Plus, Activity } from "lucide-react"
+import { Brain, Play, Pause, Settings, Download, Search, Plus, Activity, RotateCcw } from "lucide-react"
 import Link from "next/link"
+import { useModels } from "@/lib/hooks/useModels"
+import { useToast } from "@/hooks/use-toast"
 
 export default function AdminModelsPage() {
-  const models = [
-    {
-      id: "mistral",
-      name: "Mistral",
-      version: "7B",
-      status: "running",
-      description: "Advanced language model optimized for code analysis",
-      requests: 342,
-      avgResponse: 0.8,
-      accuracy: 94,
-      memoryUsage: 2.1,
-      lastUsed: "2 minutes ago",
-    },
-    {
-      id: "deepseek",
-      name: "DeepSeek",
-      version: "6.7B",
-      status: "running",
-      description: "Specialized model for code generation and programming tasks",
-      requests: 189,
-      avgResponse: 1.2,
-      accuracy: 91,
-      memoryUsage: 1.8,
-      lastUsed: "5 minutes ago",
-    },
-    {
-      id: "phi",
-      name: "Phi",
-      version: "3.8B",
-      status: "stopped",
-      description: "General purpose language model for various tasks",
-      requests: 67,
-      avgResponse: 0.6,
-      accuracy: 88,
-      memoryUsage: 0,
-      lastUsed: "1 hour ago",
-    },
-    {
-      id: "gemma",
-      name: "Gemma",
-      version: "2B",
-      status: "running",
-      description: "Lightweight model optimized for documentation and explanations",
-      requests: 156,
-      avgResponse: 0.4,
-      accuracy: 92,
-      memoryUsage: 0.9,
-      lastUsed: "1 minute ago",
-    },
-    {
-      id: "tinyllama",
-      name: "TinyLlama",
-      version: "1.1B",
-      status: "running",
-      description: "Ultra-fast model for quick tasks and simple queries",
-      requests: 423,
-      avgResponse: 0.2,
-      accuracy: 85,
-      memoryUsage: 0.5,
-      lastUsed: "30 seconds ago",
-    },
-  ]
+  const { models, loading, error, refetch, toggleModel, testModel } = useModels()
+  const { toast } = useToast()
+  const [testing, setTesting] = useState<string | null>(null)
+  const [toggling, setToggling] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "running":
-        return "bg-green-100 text-green-800 border-green-200"
-      case "stopped":
-        return "bg-red-100 text-red-800 border-red-200"
-      case "loading":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+  const handleTestModel = async (id: string, name: string) => {
+    try {
+      setTesting(id)
+      await testModel(id)
+      toast({
+        title: "Success",
+        description: `${name} test passed`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: `Failed to test ${name}`,
+        variant: "destructive",
+      })
+    } finally {
+      setTesting(null)
     }
   }
+
+  const handleToggleModel = async (id: string, enabled: boolean, name: string) => {
+    try {
+      setToggling(id)
+      await toggleModel(id, !enabled)
+      toast({
+        title: "Success",
+        description: `${name} ${enabled ? 'disabled' : 'enabled'}`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: `Failed to update ${name}`,
+        variant: "destructive",
+      })
+    } finally {
+      setToggling(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading models...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-red-800">Failed to load models: {error}</p>
+          <Button onClick={refetch} className="mt-4">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  const filteredModels = models.filter((model) =>
+    model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    model.provider.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  const runningModels = filteredModels.filter((m) => m.enabled)
+  const stoppedModels = filteredModels.filter((m) => !m.enabled)
 
   return (
     <div className="p-8">
@@ -109,7 +114,7 @@ export default function AdminModelsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600">Total Models</p>
-                <p className="text-2xl font-bold">5</p>
+                <p className="text-2xl font-bold">{models.length}</p>
               </div>
               <Brain className="h-8 w-8 text-blue-500" />
             </div>
@@ -120,8 +125,8 @@ export default function AdminModelsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Running</p>
-                <p className="text-2xl font-bold text-green-600">4</p>
+                <p className="text-sm font-medium text-slate-600">Enabled</p>
+                <p className="text-2xl font-bold text-green-600">{runningModels.length}</p>
               </div>
               <Play className="h-8 w-8 text-green-500" />
             </div>
@@ -133,7 +138,7 @@ export default function AdminModelsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600">Total Requests</p>
-                <p className="text-2xl font-bold">1,177</p>
+                <p className="text-2xl font-bold">{models.reduce((acc, m) => acc + m.usageCount, 0).toLocaleString()}</p>
               </div>
               <Activity className="h-8 w-8 text-purple-500" />
             </div>
@@ -144,11 +149,11 @@ export default function AdminModelsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Memory Usage</p>
-                <p className="text-2xl font-bold">5.3GB</p>
+                <p className="text-sm font-medium text-slate-600">Avg Response</p>
+                <p className="text-2xl font-bold">{(models.reduce((acc, m) => acc + m.maxTokens, 0) / models.length / 1000).toFixed(1)}s</p>
               </div>
               <div className="w-8 h-8 bg-orange-100 text-orange-800 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold">M</span>
+                <span className="text-sm font-bold">⚡</span>
               </div>
             </div>
           </CardContent>
@@ -159,65 +164,77 @@ export default function AdminModelsPage() {
       <Tabs defaultValue="all" className="space-y-6">
         <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTrigger value="all">All Models</TabsTrigger>
-            <TabsTrigger value="running">Running</TabsTrigger>
-            <TabsTrigger value="stopped">Stopped</TabsTrigger>
+            <TabsTrigger value="all">All Models ({filteredModels.length})</TabsTrigger>
+            <TabsTrigger value="running">Enabled ({runningModels.length})</TabsTrigger>
+            <TabsTrigger value="stopped">Disabled ({stoppedModels.length})</TabsTrigger>
           </TabsList>
           <div className="flex gap-2">
-            <Input placeholder="Search models..." className="w-64" />
-            <Button variant="outline" size="sm">
-              <Search className="h-4 w-4" />
-            </Button>
+            <Input
+              placeholder="Search models..."
+              className="w-64"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
 
         <TabsContent value="all">
           <div className="space-y-4">
-            {models.map((model) => (
+            {filteredModels.map((model) => (
               <Card key={model.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="bg-blue-100 text-blue-800 rounded-full w-12 h-12 flex items-center justify-center">
+                      <div className={`rounded-full w-12 h-12 flex items-center justify-center ${model.enabled ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
                         <Brain className="h-6 w-6" />
                       </div>
                       <div>
                         <div className="flex items-center gap-3 mb-1">
                           <h3 className="text-lg font-semibold">{model.name}</h3>
                           <Badge variant="outline">{model.version}</Badge>
-                          <Badge variant="outline" className={getStatusColor(model.status)}>
-                            {model.status}
+                          <Badge variant={model.enabled ? "default" : "secondary"}>
+                            {model.enabled ? 'Enabled' : 'Disabled'}
                           </Badge>
                         </div>
-                        <p className="text-sm text-slate-600 mb-2">{model.description}</p>
+                        <p className="text-sm text-slate-600 mb-2">{model.provider}</p>
                         <div className="flex items-center gap-4 text-xs text-slate-500">
-                          <span>{model.requests} requests</span>
-                          <span>{model.avgResponse}s avg response</span>
-                          <span>{model.accuracy}% accuracy</span>
-                          <span>{model.memoryUsage}GB memory</span>
-                          <span>Last used: {model.lastUsed}</span>
+                          <span>{model.usageCount} requests</span>
+                          <span>Context: {model.contextWindow}</span>
+                          <span>{model.costPerToken} $/token</span>
+                          {model.lastUpdated && <span>Updated: {new Date(model.lastUpdated).toLocaleDateString()}</span>}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Link href={`/models/${model.id}`}>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </Link>
-                      <Button variant="outline" size="sm">
-                        <Settings className="h-4 w-4" />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTestModel(model.id, model.name)}
+                        disabled={testing === model.id}
+                      >
+                        {testing === model.id ? (
+                          <RotateCcw className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Settings className="h-4 w-4" />
+                        )}
                       </Button>
-                      <Button variant={model.status === "running" ? "destructive" : "default"} size="sm">
-                        {model.status === "running" ? (
+                      <Button
+                        variant={model.enabled ? "destructive" : "default"}
+                        size="sm"
+                        onClick={() => handleToggleModel(model.id, model.enabled, model.name)}
+                        disabled={toggling === model.id}
+                      >
+                        {toggling === model.id ? (
+                          <RotateCcw className="h-4 w-4 animate-spin mr-2" />
+                        ) : model.enabled ? (
                           <>
                             <Pause className="h-4 w-4 mr-2" />
-                            Stop
+                            Disable
                           </>
                         ) : (
                           <>
                             <Play className="h-4 w-4 mr-2" />
-                            Start
+                            Enable
                           </>
                         )}
                       </Button>
@@ -231,9 +248,12 @@ export default function AdminModelsPage() {
 
         <TabsContent value="running">
           <div className="space-y-4">
-            {models
-              .filter((model) => model.status === "running")
-              .map((model) => (
+            {runningModels.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No enabled models</p>
+              </div>
+            ) : (
+              runningModels.map((model) => (
                 <Card key={model.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -245,46 +265,45 @@ export default function AdminModelsPage() {
                           <div className="flex items-center gap-3 mb-1">
                             <h3 className="text-lg font-semibold">{model.name}</h3>
                             <Badge variant="outline">{model.version}</Badge>
-                            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                              {model.status}
-                            </Badge>
+                            <Badge className="bg-green-100 text-green-800 border-green-200">Enabled</Badge>
                           </div>
-                          <p className="text-sm text-slate-600 mb-2">{model.description}</p>
+                          <p className="text-sm text-slate-600 mb-2">{model.provider}</p>
                           <div className="flex items-center gap-4 text-xs text-slate-500">
-                            <span>{model.requests} requests</span>
-                            <span>{model.avgResponse}s avg response</span>
-                            <span>{model.accuracy}% accuracy</span>
-                            <span>{model.memoryUsage}GB memory</span>
-                            <span>Last used: {model.lastUsed}</span>
+                            <span>{model.usageCount} requests</span>
+                            <span>Context: {model.contextWindow}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Link href={`/models/${model.id}`}>
-                          <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
-                        </Link>
-                        <Button variant="outline" size="sm">
-                          <Settings className="h-4 w-4" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTestModel(model.id, model.name)}
+                          disabled={testing === model.id}
+                        >
+                          Test
                         </Button>
-                        <Button variant="destructive" size="sm">
+                        <Button variant="destructive" size="sm" onClick={() => handleToggleModel(model.id, model.enabled, model.name)} disabled={toggling === model.id}>
                           <Pause className="h-4 w-4 mr-2" />
-                          Stop
+                          Disable
                         </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="stopped">
           <div className="space-y-4">
-            {models
-              .filter((model) => model.status === "stopped")
-              .map((model) => (
+            {stoppedModels.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No disabled models</p>
+              </div>
+            ) : (
+              stoppedModels.map((model) => (
                 <Card key={model.id} className="hover:shadow-md transition-shadow opacity-75">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -296,37 +315,25 @@ export default function AdminModelsPage() {
                           <div className="flex items-center gap-3 mb-1">
                             <h3 className="text-lg font-semibold">{model.name}</h3>
                             <Badge variant="outline">{model.version}</Badge>
-                            <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
-                              {model.status}
-                            </Badge>
+                            <Badge className="bg-red-100 text-red-800 border-red-200">Disabled</Badge>
                           </div>
-                          <p className="text-sm text-slate-600 mb-2">{model.description}</p>
+                          <p className="text-sm text-slate-600 mb-2">{model.provider}</p>
                           <div className="flex items-center gap-4 text-xs text-slate-500">
-                            <span>{model.requests} requests</span>
-                            <span>{model.avgResponse}s avg response</span>
-                            <span>{model.accuracy}% accuracy</span>
-                            <span>Last used: {model.lastUsed}</span>
+                            <span>{model.usageCount} requests</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Link href={`/models/${model.id}`}>
-                          <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
-                        </Link>
-                        <Button variant="outline" size="sm">
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                        <Button variant="default" size="sm">
+                        <Button variant="default" size="sm" onClick={() => handleToggleModel(model.id, model.enabled, model.name)} disabled={toggling === model.id}>
                           <Play className="h-4 w-4 mr-2" />
-                          Start
+                          Enable
                         </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+            )}
           </div>
         </TabsContent>
       </Tabs>

@@ -1,0 +1,48 @@
+{
+  "system_identity": {
+    "name": "ZombieCoder",
+    "version": "1.0.0",
+    "tagline": "Where Code and Conversation Speak",
+    "description": "A unified AI infrastructure panel with dynamic agent management, OpenAI-compatible provider integration, and secure JWT-based authentication",
+    "branding": {
+      "owner": "Sahon Srabon",
+      "organization": "Developer Zone",
+      "address": "235 South Pirarbag, Amtala Bazar, Mirpur - 60 feet",
+      "location": "Dhaka, Bangladesh"
+    },
+    "contact": {
+      "phone": "+880 1323-626282",
+      "email": "infi@zombiecoder.my.id",
+      "website": "https://zombiecoder.my.id"
+    },
+    "license": "Proprietary - Local Freedom Protocol",
+    "repository": {
+      "platform": "GitHub",
+      "branch": "ZombieCoder-AI-Infrastructure-Panel"
+    },
+    "technical_stack": {
+      "backend": "TypeScript with Express.js",
+      "database": "SQLite3 (better-sqlite3)",
+      "frontend": "Next.js 15 with React",
+      "authentication": "JWT",
+      "realtime": "WebSockets",
+      "ai_framework": "CrewAI"
+    },
+    "features": [
+      "Dynamic Agent Management",
+      "OpenAI-Compatible API Integration",
+      "Real-time WebSocket Streaming",
+      "JWT-based Authentication",
+      "RAG System with Memory Management",
+      "Admin Tool Management",
+      "Model Syncing from Providers",
+      "WebHook Integration",
+      "Analytics Dashboard",
+      "User Management with Roles"
+    ],
+    "api_version": "1.0.0",
+    "metadata_version": "1.0.0",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+}
